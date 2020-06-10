@@ -1,0 +1,22 @@
+{
+    "name": "gemstracker/randomize-module",
+    "description": "GemsTracker block randomisation module",
+    "type": "library",
+    "license": "BSD-3-Clause",
+    "authors": [
+        {
+            "name": "Matijs de Jong",
+            "email": "mjong@magnafacta.nl"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {
+        "php": ">=7.0",
+        "gemstracker/gemstracker": ">=1.8.7 || dev-master"
+    },
+    "autoload": {
+        "psr-4": {
+            "GemsRandomizer\\": "src"
+        }
+    }
+}
