@@ -1,14 +1,29 @@
 <?php
 
+/**
+ *
+ *
+ * @package    GemsRandomizer
+ * @subpackage Model
+ * @subpackage Module
+ * @license    Not licensed, do not copy
+ */
 
 namespace GemsRandomizer;
 
 use Gems\Event\Application\GetDatabasePaths;
 use Gems\Event\Application\MenuAdd;
+use Gems\Event\Application\NamedArrayEvent;
 use Gems\Event\Application\SetFrontControllerDirectory;
 use Gems\Event\Application\TranslatableNamedArrayEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
+/**
+ *
+ * @package    GemsRandomizer
+ * @subpackage Module
+ * @since      Class available since version 1.8.8
+ */
 class ModuleSubscriber implements EventSubscriberInterface
 {
     public static function getSubscribedEvents()
@@ -17,9 +32,12 @@ class ModuleSubscriber implements EventSubscriberInterface
             GetDatabasePaths::NAME => [
                 ['getDatabasePaths'],
             ],
-            /*'gems.tracker.fieldtypes.get' => [
+            'gems.tracker.fielddependencies.get' => [
+                ['getFieldDependencies'],
+            ],
+            'gems.tracker.fieldtypes.get' => [
                 ['getFieldTypes'],
-            ], // */
+            ],
             MenuAdd::NAME => [
                 ['addToMenu']
             ],
@@ -35,11 +53,11 @@ class ModuleSubscriber implements EventSubscriberInterface
         $translateAdapter = $event->getTranslatorAdapter();
 
         $prevMenu = $menu->findController('condition');
-        $contMenu = $prevMenu->getParent();
+        if ($prevMenu) {
+            $contMenu = $prevMenu->getParent();
 
-        $contMenu->addBrowsePage($label, 'prr.randomizationblocks', 'randomization', ['order' => $prevMenu->get('order') + 4]);
-
-        $menu->addPage($translateAdapter->_('Sample Module Test'), null, 'module-test', 'index');
+            $contMenu->addBrowsePage($translateAdapter->_('Block randomization'), 'pr.randomizations', 'randomization', ['order' => $prevMenu->get('order') + 4]);
+        }
     }
 
 
@@ -49,15 +67,24 @@ class ModuleSubscriber implements EventSubscriberInterface
         $event->addPath(ModuleSettings::$moduleName, $path);
     }
 
-    /*public function getFieldTypes(TranslatableNamedArrayEvent $event)
+    public function getFieldDependencies(NamedArrayEvent $event)
+    {
+        $dependencies = [
+            'randomization' => 'RandomizerDependency',
+        ];
+
+        $event->addItems($dependencies);
+    }
+
+    public function getFieldTypes(TranslatableNamedArrayEvent $event)
     {
         $translateAdapter = $event->getTranslatorAdapter();
         $fieldTypes = [
-            'fieldName' => $translateAdapter->_('Field Label'),
+            'randomization' => $translateAdapter->_('Randomization'),
         ];
 
         $event->addItems($fieldTypes);
-    }*/
+    }
 
     public function setFrontControllerDirectory(SetFrontControllerDirectory $event)
     {

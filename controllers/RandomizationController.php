@@ -1,7 +1,30 @@
 <?php
 
-class ModuleTestController extends \Gems_Controller_ModelSnippetActionAbstract
+/**
+ *
+ *
+ * @package    GemsRandomizer
+ * @subpackage Controller
+ * @author     mjong
+ * @license    Not licensed, do not copy
+ */
+
+use GemsRandomizer\Model\BlockRandomizationModel;
+use GemsRandomizer\Model\Translator\BlockImportTranslator;
+
+/**
+ *
+ * @package    GemsRandomizer
+ * @subpackage Controller
+ * @since      Class available since version 1.8.8
+ */
+class RandomizationController extends \Gems_Controller_ModelSnippetActionAbstract
 {
+    /**
+     * @var \MUtil_Registry_SourceInterface
+     */
+    public $source;
+
     /**
      * Creates a model for getModel(). Called only for each new $action.
      *
@@ -15,8 +38,25 @@ class ModuleTestController extends \Gems_Controller_ModelSnippetActionAbstract
      */
     protected function createModel($detailed, $action)
     {
+        $model = new BlockRandomizationModel();
+        $this->source->applySource($model);
 
-        
+        $model->applySettings($detailed, $action);
+
+        return $model;
+    }
+
+    /**
+     * Get the possible translators for the import snippet.
+     *
+     * @return array of \MUtil_Model_ModelTranslatorInterface objects
+     */
+    public function getImportTranslators()
+    {
+        $trs = new BlockImportTranslator($this->_('Direct import'));
+        $this->applySource($trs);
+
+        return array('default' => $trs);
     }
 
     /**

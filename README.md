@@ -4,6 +4,17 @@ This module adds block randomization to GemsTracker if you add it to the project
 
 ## Installation
 1. Add to composer.json of project, including adding the repository
+```Json
+    "require": {
+        "gemstracker/randomize-module": "dev-master"
+    },
+    "repositories": [
+        {
+            "type": "git",
+            "url": "https://github.com/GemsTracker/randomize-module.git"
+        }
+    }
+```
 2. composer update
 3. Register your module in your Projects Escort by adding the following static property:
 ```PHP
