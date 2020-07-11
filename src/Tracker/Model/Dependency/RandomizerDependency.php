@@ -104,7 +104,7 @@ class RandomizerDependency extends DependencyAbstract
     public function getChanges(array $context, $new)
     {
         $options = $this->db->fetchPairs(sprintf(
-            "SELECT grb_study, CONCAT(grb_study, '%s', COUNT(*))  FROM gemsrnd__randomization_blocks GROUP BY grb_study;",
+            "SELECT grb_study, CONCAT(grb_study, '%s', SUM(grb_use_max) - SUM(grb_use_count))  FROM gemsrnd__randomization_blocks GROUP BY grb_study;",
             $this->_(' - outcomes: ')
             ));
 
@@ -120,13 +120,14 @@ class RandomizerDependency extends DependencyAbstract
             'label'        => ' ',
             'elementClass' => 'Exhibitor',
         ];
-        $concat = new \MUtil_Model_Type_ConcatenatedRow('|', $this->_(', '), true);
         $output['gtf_calculate_using'] = [
             'label' => $this->_('Study Blocks'),
             'description'  => $this->_('Select the track conditions for selected strata'),
             'elementClass' => 'MultiCheckbox',
             'multiOptions' => $options,
-        ] + $concat->getSettings();
+            'validators[ranfge]' => ['CheckedItemsRange', false, ['gtf_calculate_using', 1, 1]],
+        ];;
+        // \MUtil_Echo::track($options);
 
         return $output;
     }

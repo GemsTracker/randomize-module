@@ -11,6 +11,7 @@
 
 namespace GemsRandomizer\Tracker\Field;
 
+use Gems\Condition\TrackConditionInterface;
 use Gems\Tracker\Field\FieldAbstract;
 
 /**
@@ -23,6 +24,31 @@ use Gems\Tracker\Field\FieldAbstract;
 class RandomizationField extends FieldAbstract
 {
     /**
+     * @var string
+     */
+    protected $_glue = "\t";
+
+    /**
+     * @var \Zend_Db_Adapter_Abstract
+     */
+    protected $db;
+
+    /**
+     * @var \Gems_Loader
+     */
+    protected $loader;
+
+    /**
+     * @var \Gems_Menu
+     */
+    protected $menu;
+
+    /**
+     * @var \Gems_Tracker
+     */
+    protected $tracker;
+
+    /**
      * Add the model settings like the elementClass for this field.
      *
      * elementClass is overwritten when this field is read only, unless you override it again in getDataModelSettings()
@@ -31,6 +57,126 @@ class RandomizationField extends FieldAbstract
      */
     protected function addModelSettings(array &$settings)
     {
-        $settings['elementClass'] = 'Exhibitor';
+        $settings['elementClass']   = 'Exhibitor';
+        $settings['formatFunction'] = array($this, 'showRandomization');
+    }
+
+    /**
+     * Calculation the field info display for this type
+     *
+     * @param array $currentValue The current value
+     * @param array $fieldData The other values loaded so far
+     * @return mixed the new value
+     */
+    public function calculateFieldInfo($currentValue, array $fieldData)
+    {
+        if ($currentValue) {
+            $parts = explode($this->_glue, $currentValue);
+            if (isset($parts[2])) {
+                return $parts[2];
+            }
+        }
+
+        return $currentValue;
+    }
+
+    /**
+     * Calculate the field value using the current values
+     *
+     * @param array $currentValue The current value
+     * @param array $fieldData The other known field values
+     * @param array $trackData The currently available track data (track id may be empty)
+     * @return mixed the new value
+     */
+    public function calculateFieldValue($currentValue, array $fieldData, array $trackData)
+    {
+        // \MUtil_Echo::track($this->_fieldDefinition, $fieldData, $trackData);
+        if ($currentValue) {
+            return $currentValue;
+        }
+
+        $conditions = $this->loader->getConditions();
+        $respTrack  = $this->tracker->getRespondentTrack($trackData);
+        $study      = $this->_fieldDefinition['gtf_calculate_using'];
+
+        // \MUtil_Echo::track($study);
+
+        $sql1 = "SELECT grb_condition, grb_condition
+                    FROM gemsrnd__randomization_blocks
+                    WHERE grb_use_max > grb_use_count AND grb_active = 1 AND grb_study = ?
+                    GROUP BY grb_condition";
+
+        // \MUtil_Echo::track($study, $sql1);
+        $condIds = $this->db->fetchPairs($sql1, [$study]);
+        // \MUtil_Echo::track(count($condIds));
+        if (! $condIds) {
+            return null;
+        }
+
+        $outputCondition = false;
+        foreach ($condIds as $condId) {
+            $condition = $conditions->loadCondition($condId);
+            if ($condition instanceof TrackConditionInterface) {
+                // \MUtil_Echo::track($condition->getName());
+                if ($condition->isTrackValid($respTrack)) {
+                    $outputCondition = $condId;
+                    break;
+                }
+            }
+        }
+        IF (! $outputCondition) {
+            return null;
+        }
+
+        $sql2 = "SELECT grb_value_label, grb_value, grb_use_count
+                    FROM gemsrnd__randomization_blocks
+                    WHERE grb_use_max > grb_use_count AND grb_active = 1 AND grb_condition = ? AND grb_study = ?
+                    ORDER BY grb_use_count, grb_use_max, grb_value_label";
+        // \MUtil_Echo::track($outputCondition, $sql2);
+        $block = $this->db->fetchRow($sql2, [$outputCondition, $study]);
+
+        if (! $block) {
+            return null;
+        }
+
+        $this->db->update('gemsrnd__randomization_blocks', ['grb_use_count' => $block['grb_use_count'] + 1], [
+            'grb_value_label = ?' => $block['grb_value_label'],
+            'grb_study = ?' => $study
+            ]);
+
+        $output = [$study, $block['grb_value_label'], $block['grb_value']];
+        return implode($this->_glue, $output);
+    }
+
+    /**
+     * Dispaly an appoitment as text
+     *
+     * @param value $value
+     * @return string
+     */
+    public function showRandomization($value)
+    {
+        if ($value) {
+            $parts = explode($this->_glue, $value);
+            if (isset($parts[2])) {
+                /*
+                $showItem = $this->menu->findAllowedController('randomization', 'show');
+                if ($showItem) {
+                    if (! $this->request) {
+                        $this->request = \Zend_Controller_Front::getInstance()->getRequest();
+                    }
+                    $href = $showItem->toHRefAttribute(
+                        array('gap_id_appointment' => $appointment->getId()),
+                        $this->request
+                    );
+                    if ($href) {
+                        return \MUtil_Html::create('a', $href, $appointment->getDisplayString());
+                    }
+                } // */
+                return $parts[2];
+            }
+        }
+
+        return $value;
     }
 }
