@@ -4,7 +4,6 @@
  *
  *
  * @package    GemsRandomizer
- * @subpackage Model
  * @subpackage Module
  * @license    Not licensed, do not copy
  */
@@ -13,6 +12,7 @@ namespace GemsRandomizer;
 
 use Gems\Event\Application\GetDatabasePaths;
 use Gems\Event\Application\MenuAdd;
+use Gems\Event\Application\ModelCreateEvent;
 use Gems\Event\Application\NamedArrayEvent;
 use Gems\Event\Application\SetFrontControllerDirectory;
 use Gems\Event\Application\TranslatableNamedArrayEvent;
@@ -32,6 +32,9 @@ class ModuleSubscriber implements EventSubscriberInterface
             GetDatabasePaths::NAME => [
                 ['getDatabasePaths'],
             ],
+            'gems.model.create.conditions' => [
+                ['createConditionModel'],
+            ],
             'gems.tracker.fielddependencies.get' => [
                 ['getFieldDependencies'],
             ],
@@ -47,6 +50,9 @@ class ModuleSubscriber implements EventSubscriberInterface
         ];
     }
 
+    /**
+     * @param \Gems\Event\Application\MenuAdd $event
+     */
     public function addToMenu(MenuAdd $event)
     {
         $menu = $event->getMenu();
@@ -60,6 +66,19 @@ class ModuleSubscriber implements EventSubscriberInterface
         }
     }
 
+    /**
+     * @param \Gems\Event\Application\ModelCreateEvent $event
+     */
+    public function createConditionModel(ModelCreateEvent $event)
+    {
+        // \MUtil_Echo::track($event->getModel()->getName());
+        // TODO Action!
+        $model = $event->getModel();
+
+        $snippets = $model->getMeta('ConditionShowSnippets', []);
+//        $snippets[] = 'Agenda\\ApplyFiltersInformation';
+//        $model->setMeta('ConditionShowSnippets', $snippets);
+    }
 
     public function getDatabasePaths(GetDatabasePaths $event)
     {

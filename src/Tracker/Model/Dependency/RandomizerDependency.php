@@ -104,7 +104,7 @@ class RandomizerDependency extends DependencyAbstract
     public function getChanges(array $context, $new)
     {
         $options = $this->db->fetchPairs(sprintf(
-            "SELECT grb_study, CONCAT(grb_study, '%s', SUM(grb_use_max) - SUM(grb_use_count))  FROM gemsrnd__randomization_blocks GROUP BY grb_study;",
+            "SELECT grb_study_name, CONCAT(grb_study_name, '%s', SUM(grb_use_max) - SUM(grb_use_count))  FROM gemsrnd__randomization_blocks GROUP BY grb_study_name;",
             $this->_(' - outcomes: ')
             ));
 

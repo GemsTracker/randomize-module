@@ -44,6 +44,11 @@ class RandomizationField extends FieldAbstract
     protected $menu;
 
     /**
+     * @var \Zend_Controller_Request_Abstract
+     */
+    protected $request;
+
+    /**
      * @var \Gems_Tracker
      */
     protected $tracker;
@@ -72,8 +77,8 @@ class RandomizationField extends FieldAbstract
     {
         if ($currentValue) {
             $parts = explode($this->_glue, $currentValue);
-            if (isset($parts[2])) {
-                return $parts[2];
+            if (isset($parts[1])) {
+                return $parts[1];
             }
         }
 
@@ -103,7 +108,7 @@ class RandomizationField extends FieldAbstract
 
         $sql1 = "SELECT grb_condition, grb_condition
                     FROM gemsrnd__randomization_blocks
-                    WHERE grb_use_max > grb_use_count AND grb_active = 1 AND grb_study = ?
+                    WHERE grb_use_max > grb_use_count AND grb_active = 1 AND grb_study_name = ?
                     GROUP BY grb_condition";
 
         // \MUtil_Echo::track($study, $sql1);
@@ -128,10 +133,11 @@ class RandomizationField extends FieldAbstract
             return null;
         }
 
-        $sql2 = "SELECT grb_value_label, grb_value, grb_use_count
+        $sql2 = "SELECT grb_value_id, grb_value, grb_use_count
                     FROM gemsrnd__randomization_blocks
-                    WHERE grb_use_max > grb_use_count AND grb_active = 1 AND grb_condition = ? AND grb_study = ?
-                    ORDER BY grb_use_count, grb_use_max, grb_value_label";
+                    WHERE (grb_use_max > grb_use_count OR grb_use_max = 0) AND grb_active = 1 AND 
+                          grb_condition = ? AND grb_study_name = ?
+                    ORDER BY grb_value_order";
         // \MUtil_Echo::track($outputCondition, $sql2);
         $block = $this->db->fetchRow($sql2, [$outputCondition, $study]);
 
@@ -140,11 +146,11 @@ class RandomizationField extends FieldAbstract
         }
 
         $this->db->update('gemsrnd__randomization_blocks', ['grb_use_count' => $block['grb_use_count'] + 1], [
-            'grb_value_label = ?' => $block['grb_value_label'],
-            'grb_study = ?' => $study
+            'grb_value_id = ?' => $block['grb_value_id'],
+            'grb_study_name = ?' => $study
             ]);
 
-        $output = [$study, $block['grb_value_label'], $block['grb_value']];
+        $output = [$block['grb_value_id'], $block['grb_value']];
         return implode($this->_glue, $output);
     }
 
@@ -158,22 +164,23 @@ class RandomizationField extends FieldAbstract
     {
         if ($value) {
             $parts = explode($this->_glue, $value);
-            if (isset($parts[2])) {
-                /*
+            if (isset($parts[1])) {
+                \MUtil_Echo::track($parts);
+                //*
                 $showItem = $this->menu->findAllowedController('randomization', 'show');
                 if ($showItem) {
                     if (! $this->request) {
                         $this->request = \Zend_Controller_Front::getInstance()->getRequest();
                     }
                     $href = $showItem->toHRefAttribute(
-                        array('gap_id_appointment' => $appointment->getId()),
+                        [\MUtil_Model::REQUEST_ID => $parts[0]],
                         $this->request
                     );
                     if ($href) {
-                        return \MUtil_Html::create('a', $href, $appointment->getDisplayString());
+                        return \MUtil_Html::create('a', $href, $parts[1]);
                     }
                 } // */
-                return $parts[2];
+                return $parts[1];
             }
         }
 

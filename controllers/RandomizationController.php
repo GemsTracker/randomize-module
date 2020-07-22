@@ -21,6 +21,23 @@ use GemsRandomizer\Model\Translator\BlockImportTranslator;
 class RandomizationController extends \Gems_Controller_ModelSnippetActionAbstract
 {
     /**
+     * The parameters used for the autofilter action.
+     *
+     * When the value is a function name of that object, then that functions is executed
+     * with the array key as single parameter and the return value is set as the used value
+     * - unless the key is an integer in which case the code is executed but the return value
+     * is not stored.
+     *
+     * @var array Mixed key => value array for snippet initialisation
+     */
+    protected $autofilterParameters = [
+        'extraSort' => [
+            'grb_study_name' => SORT_ASC,
+            'grb_value_order' => SORT_ASC,
+            ],
+        ];
+
+    /**
      * @var \MUtil_Registry_SourceInterface
      */
     public $source;
@@ -58,6 +75,12 @@ class RandomizationController extends \Gems_Controller_ModelSnippetActionAbstrac
 
         return array('default' => $trs);
     }
+
+    public function getIndexTitle()
+    {
+        return $this->_('Block randomization');
+    }
+
 
     /**
      * Helper function to allow generalized statements about the items in the model.

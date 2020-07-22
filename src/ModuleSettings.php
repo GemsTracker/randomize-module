@@ -22,8 +22,14 @@ use Gems\Modules\ModuleSettingsAbstract;
  */
 class ModuleSettings extends ModuleSettingsAbstract
 {
+    /**
+     * @var string
+     */
     public static $moduleName = 'GemsRandomizer';
 
+    /**
+     * @var string
+     */
     public static $eventSubscriber = ModuleSubscriber::class;
 
     /**

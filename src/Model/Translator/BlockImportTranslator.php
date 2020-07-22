@@ -50,20 +50,6 @@ class BlockImportTranslator extends \MUtil_Model_ModelTranslatorAbstract
     }
 
     /**
-     * Called after the check that all required registry values
-     * have been set correctly has run.
-     *
-     * @return void
-     */
-    public function afterRegistry()
-    {
-        parent::afterRegistry();
-
-        $this->_conditionIds = $this->loader->getConditions()->getConditionsFor(\Gems\Conditions::TRACK_CONDITION);
-        unset($this->_conditionIds[""]);
-    }
-
-    /**
      * Get information on the field translations
      *
      * @return array of fields sourceName => targetName
@@ -72,12 +58,13 @@ class BlockImportTranslator extends \MUtil_Model_ModelTranslatorAbstract
     public function getFieldsTranslations()
     {
         return [
-            'study'       => 'grb_study',
-            'label'       => 'grb_value_label',
-            'description' => 'grb_description',
-            'info'        => 'grb_info',
+            'id'          => 'grb_value_id',
             'stratum'     => 'grb_condition',
             'value'       => 'grb_value',
+            'study'       => 'grb_study_name',
+            'order'       => 'grb_value_order',
+            'description' => 'grb_block_description',
+            'info'        => 'grb_block_info',
             'active'      => 'grb_active',
             'use_count'   => 'grb_use_count',
             'use_max'     => 'grb_use_max',
@@ -92,7 +79,7 @@ class BlockImportTranslator extends \MUtil_Model_ModelTranslatorAbstract
      */
     public function setTargetModel(\MUtil_Model_ModelAbstract $targetModel)
     {
-        $targetModel->set('grb_condition', 'multiOptions', $this->_conditionIds);
+        $this->_conditionIds = $targetModel->get('grb_condition', 'multiOptions');
 
         return parent::setTargetModel($targetModel);
     }
@@ -113,21 +100,19 @@ class BlockImportTranslator extends \MUtil_Model_ModelTranslatorAbstract
             unset($classes[""]);
             reset($classes);
 
-            \MUtil_Echo::track($classes);
-
+            // \MUtil_Echo::track($classes);
             $cModel = $this->loader->getModels()->getConditionModel();
             $values = [
-                'gcon_type' => Conditions::TRACK_CONDITION,
-                'gcon_class' => key($classes),
-                'gcon_name'  => $cond,
+                'gcon_type'   => Conditions::TRACK_CONDITION,
+                'gcon_class'  => key($classes),
+                'gcon_name'   => $cond,
+                'gcon_active' => 0,
                 ];
 
             $result = $cModel->save($values);
 
-            \MUtil_Echo::track($result);
-
             $this->_conditionIds[$result['gcon_id']] = $cond;
-            $this->getTargetModel()->set('grb_condition', 'multiOptions', $this->_conditionIds);
+            $this->addMultiOption('grb_condition', $result['gcon_id'], $cond);
         }
 
         $row = parent::translateRowValues($row, $key);
