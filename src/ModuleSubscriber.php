@@ -5,17 +5,21 @@
  *
  * @package    GemsRandomizer
  * @subpackage Module
- * @license    Not licensed, do not copy
+ * @author     Matijs de Jong <mjong@magnafacta.nl>
+ * @license    New BSD License
  */
 
 namespace GemsRandomizer;
 
+use GemsRandomizer\Util\RandomUtil;
 use Gems\Event\Application\GetDatabasePaths;
+use Gems\Event\Application\LoaderInitEvent;
 use Gems\Event\Application\MenuAdd;
 use Gems\Event\Application\ModelCreateEvent;
 use Gems\Event\Application\NamedArrayEvent;
 use Gems\Event\Application\SetFrontControllerDirectory;
 use Gems\Event\Application\TranslatableNamedArrayEvent;
+use Gems\Event\Application\ZendTranslateEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
@@ -32,6 +36,9 @@ class ModuleSubscriber implements EventSubscriberInterface
             GetDatabasePaths::NAME => [
                 ['getDatabasePaths'],
             ],
+            LoaderInitEvent::NAME => [
+                ['initLoader'],
+            ],
             'gems.model.create.conditions' => [
                 ['createConditionModel'],
             ],
@@ -46,7 +53,10 @@ class ModuleSubscriber implements EventSubscriberInterface
             ],
             SetFrontControllerDirectory::NAME => [
                 ['setFrontControllerDirectory'],
-            ], // */
+            ],
+            ZendTranslateEvent::NAME => [
+                ['addTranslation'],
+            ],
         ];
     }
 
@@ -67,12 +77,19 @@ class ModuleSubscriber implements EventSubscriberInterface
     }
 
     /**
+     * @param \Gems\Event\Application\ZendTranslateEvent $event
+     * @throws \Zend_Translate_Exception
+     */
+    public function addTranslation(ZendTranslateEvent $event)
+    {
+        $event->addTranslationByDirectory(ModuleSettings::getVendorPath() . DIRECTORY_SEPARATOR . 'languages');
+    }
+
+    /**
      * @param \Gems\Event\Application\ModelCreateEvent $event
      */
     public function createConditionModel(ModelCreateEvent $event)
     {
-        // \MUtil_Echo::track($event->getModel()->getName());
-        // TODO Action!
         $model = $event->getModel();
 
         $snippets = $model->getMeta('ConditionShowSnippets', []);
@@ -80,12 +97,18 @@ class ModuleSubscriber implements EventSubscriberInterface
 //        $model->setMeta('ConditionShowSnippets', $snippets);
     }
 
+    /**
+     * @param \Gems\Event\Application\GetDatabasePaths $event
+     */
     public function getDatabasePaths(GetDatabasePaths $event)
     {
         $path = ModuleSettings::getVendorPath() . DIRECTORY_SEPARATOR . 'configs' . DIRECTORY_SEPARATOR . 'db';
         $event->addPath(ModuleSettings::$moduleName, $path);
     }
 
+    /**
+     * @param \Gems\Event\Application\GetDatabasePaths $event
+     */
     public function getFieldDependencies(NamedArrayEvent $event)
     {
         $dependencies = [
@@ -95,6 +118,9 @@ class ModuleSubscriber implements EventSubscriberInterface
         $event->addItems($dependencies);
     }
 
+    /**
+     * @param \Gems\Event\Application\TranslatableNamedArrayEvent $event
+     */
     public function getFieldTypes(TranslatableNamedArrayEvent $event)
     {
         $translateAdapter = $event->getTranslatorAdapter();
@@ -105,6 +131,17 @@ class ModuleSubscriber implements EventSubscriberInterface
         $event->addItems($fieldTypes);
     }
 
+    /**
+     * @param \Gems\Event\Application\LoaderInitEvent $event
+     */
+    public function initLoader(LoaderInitEvent $event)
+    {
+        $event->addByName(new RandomUtil(), 'randomUtil');
+    }
+
+    /**
+     * @param \Gems\Event\Application\SetFrontControllerDirectory $event
+     */
     public function setFrontControllerDirectory(SetFrontControllerDirectory $event)
     {
         $applicationPath = ModuleSettings::getVendorPath() . DIRECTORY_SEPARATOR . 'controllers';

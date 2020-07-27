@@ -1,0 +1,188 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Pulse NL\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-07-27 16:09+0200\n"
+"PO-Revision-Date: \n"
+"Last-Translator: Matijs de Jong <mjong@magnafacta.nl>\n"
+"Language-Team: Erasmus MGZ <matijs.de.jong@magnafacta.nl>\n"
+"Language: nl_NL\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Poedit-SourceCharset: iso-8859-1\n"
+"X-Poedit-Basepath: ..\n"
+"X-Poedit-KeywordsList: plural:1,2\n"
+"X-Generator: Poedit 2.4\n"
+"X-Poedit-SearchPath-0: src\n"
+"X-Poedit-SearchPath-1: controllers\n"
+
+#: controllers/RandomizationController.php:80
+msgid "Direct import"
+msgstr "Directe import"
+
+#: controllers/RandomizationController.php:93 src/ModuleSubscriber.php:71
+msgid "Block randomization"
+msgstr "Blok randomizatie"
+
+#: controllers/RandomizationController.php:137
+msgid "randomization block"
+msgid_plural "randomization blocks"
+msgstr[0] "randomisatie blok"
+msgstr[1] "randomisatie blokken"
+
+#: src/Model/BlockRandomizationModel.php:69
+msgid "Study name"
+msgstr "Studienaam"
+
+#: src/Model/BlockRandomizationModel.php:70
+#: src/Model/BlockRandomizationModel.php:71
+msgid "The study name is used to group blocks."
+msgstr "De studienaam wordt gebruikt om blokken te groeperen."
+
+#: src/Model/BlockRandomizationModel.php:73
+msgid "Selection order"
+msgstr "Volgorde van selectie"
+
+#: src/Model/BlockRandomizationModel.php:75
+msgid "The order of use within a study, leave empty to add to end of stack."
+msgstr ""
+"De gebruiksvolgorde binnen een studie. Leeglaten om als laatste in te voegen."
+
+#: src/Model/BlockRandomizationModel.php:76
+msgid "The order of use within a study, leave empty to add by order of import."
+msgstr ""
+"De gebruiksvolgorde binnen een studie. Leeglaten om op volgorde van import "
+"in te voegen."
+
+#: src/Model/BlockRandomizationModel.php:81
+msgid "Block id"
+msgstr "Blok id"
+
+#: src/Model/BlockRandomizationModel.php:82
+#: src/Model/BlockRandomizationModel.php:83
+msgid "A unique name identifying the randomization value."
+msgstr "Een unieke naam die de randomisatie indentificeerd."
+
+#: src/Model/BlockRandomizationModel.php:85
+msgid "Block value"
+msgstr "Blok waarde"
+
+#: src/Model/BlockRandomizationModel.php:86
+msgid "The outcome value assigned to a randomization."
+msgstr "De uitkomst waarde bij randomizeren."
+
+#: src/Model/BlockRandomizationModel.php:91
+#: src/Model/BlockRandomizationModel.php:96
+msgid "Stratum / condition"
+msgstr "Stratum / voorwaarde"
+
+#: src/Model/BlockRandomizationModel.php:92
+#: src/Model/BlockRandomizationModel.php:93
+#: src/Model/BlockRandomizationModel.php:97
+msgid "A stratum is a track level condition."
+msgstr "Een stratum is een voorwaarde op traject niveau."
+
+#: src/Model/BlockRandomizationModel.php:94
+msgid "If it does not exist it will be created as an inactive condition."
+msgstr ""
+"Als de voorwaarde niet bestaat wordt een inactieve voorwaarde aangemaakt."
+
+#: src/Model/BlockRandomizationModel.php:98
+msgid "See Track builder: Conditions."
+msgstr "Zie Trajectbouwer: Voorwaarden."
+
+#: src/Model/BlockRandomizationModel.php:101
+msgid "Block Description"
+msgstr "Blok omschrijving"
+
+#: src/Model/BlockRandomizationModel.php:102
+msgid "Optional block description, not used by GemsTracker"
+msgstr "Optionele omschrijving voor het blok, niet gebruikt door GemsTracker"
+
+#: src/Model/BlockRandomizationModel.php:103
+#: src/Model/BlockRandomizationModel.php:105
+#: src/Model/BlockRandomizationModel.php:106
+msgid "Optional extra information, not used by GemsTracker"
+msgstr "Optionele extra informatie, niet gebruikt door GemsTracker"
+
+#: src/Model/BlockRandomizationModel.php:104
+msgid "Block Info"
+msgstr "Blok informatie"
+
+#: src/Model/BlockRandomizationModel.php:108
+msgid "Active"
+msgstr "Actief"
+
+#: src/Model/BlockRandomizationModel.php:113
+msgid "Usage"
+msgstr "Gebruik"
+
+#: src/Model/BlockRandomizationModel.php:115
+msgid "Maximum"
+msgstr "Maximum"
+
+#: src/Model/BlockRandomizationModel.php:116
+#: src/Model/BlockRandomizationModel.php:117
+msgid "0 means unlimited use"
+msgstr "0 betekent onbeperkt gebruik"
+
+#: src/Model/BlockRandomizationModel.php:121
+msgid "Changed on"
+msgstr "Veranderd op"
+
+#: src/Model/BlockRandomizationModel.php:124
+msgid "Changed by"
+msgstr "Veranderd door"
+
+#: src/ModuleSubscriber.php:106
+msgid "Randomization"
+msgstr "Randomisatie"
+
+#: src/Snippets/Randomizer/RandomizerSearchSnippet.php:49
+msgid "(all studies)"
+msgstr "(alle studies)"
+
+#: src/Snippets/Randomizer/RandomizerSearchSnippet.php:50
+msgid "(all strata)"
+msgstr "(alle strata)"
+
+#: src/Snippets/Randomizer/RandomizerSearchSnippet.php:52
+msgid "Unused"
+msgstr "Ongebruikt"
+
+#: src/Snippets/Randomizer/RandomizerSearchSnippet.php:53
+msgid "Used"
+msgstr "Gebruikt"
+
+#: src/Snippets/Randomizer/RandomizerSearchSnippet.php:55
+msgid "Maxed out"
+msgstr "Opgebruikt"
+
+#: src/Snippets/Randomizer/RandomizerSearchSnippet.php:56
+msgid "Unlimited use"
+msgstr "Onbeperkt gebruik"
+
+#: src/Snippets/Randomizer/RandomizerSearchSnippet.php:58
+msgid "(any usage)"
+msgstr "(elk gebruik)"
+
+#: src/Snippets/Randomizer/RandomizerSearchSnippet.php:59
+msgid "(any active)"
+msgstr "(elke actief)"
+
+#: src/Tracker/Model/Dependency/RandomizerDependency.php:112
+msgid "Study Blocks"
+msgstr "Studie blokken"
+
+#: src/Tracker/Model/Dependency/RandomizerDependency.php:113
+msgid "Select the study name for this randomization"
+msgstr "Kies de studienaam voor deze randomizatie"
+
+#: src/Util/RandomUtil.php:32
+msgid " - outcomes: "
+msgstr " - uitkomsten: "
+
+#~ msgid "Select the track conditions for selected strata"
+#~ msgstr "Kies de trajectvoorwaarde voor geselecteerde strata"

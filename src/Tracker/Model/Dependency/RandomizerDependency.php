@@ -59,21 +59,14 @@ class RandomizerDependency extends DependencyAbstract
 
     /**
      *
-     * @var \Zend_Db_Adapter_Abstract
-     */
-    protected $db;
-
-    /**
-     *
      * @var \Gems_Loader
      */
     protected $loader;
 
     /**
-     *
-     * @var \Gems_Menu
-     * /
-    protected $menu;
+     * @var \GemsRandomizer\Util\RandomUtil
+     */
+    protected $randomUtil;
 
     /**
      *
@@ -103,11 +96,6 @@ class RandomizerDependency extends DependencyAbstract
      */
     public function getChanges(array $context, $new)
     {
-        $options = $this->db->fetchPairs(sprintf(
-            "SELECT grb_study_name, CONCAT(grb_study_name, '%s', SUM(grb_use_max) - SUM(grb_use_count))  FROM gemsrnd__randomization_blocks GROUP BY grb_study_name;",
-            $this->_(' - outcomes: ')
-            ));
-
         $output['gtf_required'] = [
             'elementClass' => 'Hidden',
             'value'        => 0,
@@ -122,9 +110,9 @@ class RandomizerDependency extends DependencyAbstract
         ];
         $output['gtf_calculate_using'] = [
             'label' => $this->_('Study Blocks'),
-            'description'  => $this->_('Select the track conditions for selected strata'),
+            'description'  => $this->_('Select the study name for this randomization'),
             'elementClass' => 'MultiCheckbox',
-            'multiOptions' => $options,
+            'multiOptions' => $this->randomUtil->getRandomStudies(),
             'validators[ranfge]' => ['CheckedItemsRange', false, ['gtf_calculate_using', 1, 1]],
         ];;
         // \MUtil_Echo::track($options);

@@ -6,12 +6,15 @@
  * @package    GemsRandomizer
  * @subpackage Model
  * @author     mjong
- * @license    Not licensed, do not copy
+ * @license    New BSD License
  */
 
 namespace GemsRandomizer\Model;
 
+use GemsRandomizer\Model\Dependency\UseCountDependency;
+
 use Gems\Conditions;
+use MUtil\Model\Dependency\ValueSwitchDependency;
 
 /**
  *
@@ -68,7 +71,7 @@ class BlockRandomizationModel extends \Gems_Model_JoinModel
                    'import_descr', $this->_('The study name is used to group blocks.')
         );
         $this->set('grb_value_order', 'label', $this->_('Selection order'),
-                   'default', 0,
+                   'default', '',
                    'description', $this->_('The order of use within a study, leave empty to add to end of stack.'),
                    'import_descr', $this->_('The order of use within a study, leave empty to add by order of import.'),
                    'required', false,
@@ -79,21 +82,21 @@ class BlockRandomizationModel extends \Gems_Model_JoinModel
             'description', $this->_('A unique name identifying the randomization value.'),
            'import_descr', $this->_('A unique name identifying the randomization value.'),
            'validators[unique]', $this->createUniqueValidator('grb_value_id'));
+        $this->set('grb_value', 'label', $this->_('Block value'),
+                   'description', $this->_('The outcome value assigned to a randomization.'));
 
+        $this->set('grb_condition',
+                   'multiOptions', $this->loader->getConditions()->getConditionsFor(Conditions::TRACK_CONDITION, false));
         if ($detailed) {
             $this->set('grb_condition', 'label', $this->_('Stratum / condition'),
                        'description', $this->_('A stratum is a track level condition.'),
                        'import_descr', $this->_('A stratum is a track level condition.') . ' ' .
-                       $this->_('If it does not exist it will be created as an inactive condition.'),
-                       'multiOptions', $this->loader->getConditions()->getConditionsFor(Conditions::TRACK_CONDITION, false));
+                       $this->_('If it does not exist it will be created as an inactive condition.'));
         } else {
             $this->set('gcon_name', 'label', $this->_('Stratum / condition'),
                        'description', $this->_('A stratum is a track level condition.') . ' ' .
                        $this->_('See Track builder: Conditions.'));
         }
-
-        $this->set('grb_value', 'label', $this->_('Block value'),
-                   'description', $this->_('The outcome value assigned to a randomization.'));
 
         $this->set('grb_block_description', 'label', $this->_('Block Description'),
                    'description', $this->_('Optional block description, not used by GemsTracker'),
@@ -102,12 +105,10 @@ class BlockRandomizationModel extends \Gems_Model_JoinModel
                    'description', $this->_('Optional extra information, not used by GemsTracker'),
                    'import_descr', $this->_('Optional extra information, not used by GemsTracker'));
 
-        if ($detailed) {
-            $this->set('grb_active', 'label', $this->_('Active'),
-                'elementClass', 'Checkbox',
-                'multiOptions', $this->util->getTranslated()->getYesNo()
-                );
-        }
+        $this->set('grb_active', 'label', $this->_('Active'),
+            'elementClass', 'Checkbox',
+            'multiOptions', $this->util->getTranslated()->getYesNo()
+            );
 
         $this->set('grb_use_count', 'label', $this->_('Usage'),
             'filters[digits]', 'Digits');
@@ -123,6 +124,10 @@ class BlockRandomizationModel extends \Gems_Model_JoinModel
         $this->set('grb_changed_by', 'label', $this->_('Changed by'),
             'elementClass', $elementClass,
             'multiOptions', $this->util->getDbLookup()->getStaff());
+
+        if ($detailed) {
+            $this->addDependency(new UseCountDependency());
+        }
 
         return $this;
     }

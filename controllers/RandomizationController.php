@@ -6,7 +6,7 @@
  * @package    GemsRandomizer
  * @subpackage Controller
  * @author     mjong
- * @license    Not licensed, do not copy
+ * @license    New BSD License
  */
 
 use GemsRandomizer\Model\BlockRandomizationModel;
@@ -36,6 +36,13 @@ class RandomizationController extends \Gems_Controller_ModelSnippetActionAbstrac
             'grb_value_order' => SORT_ASC,
             ],
         ];
+
+    /**
+     * The snippets used for the index action, before those in autofilter
+     *
+     * @var mixed String or array of snippets name
+     */
+    protected $indexStartSnippets = ['Generic\\ContentTitleSnippet', 'Randomizer\\RandomizerSearchSnippet'];
 
     /**
      * @var \MUtil_Registry_SourceInterface
@@ -76,9 +83,46 @@ class RandomizationController extends \Gems_Controller_ModelSnippetActionAbstrac
         return array('default' => $trs);
     }
 
+    /**
+     * Helper function to get the title for the index action.
+     *
+     * @return $string
+     */
     public function getIndexTitle()
     {
         return $this->_('Block randomization');
+    }
+
+    /**
+     * Get the filter to use with the model for searching including model sorts, etc..
+     *
+     * @param boolean $useRequest Use the request as source (when false, the session is used)
+     * @return array or false
+     */
+    public function getSearchFilter($useRequest = true)
+    {
+        $filter = parent::getSearchFilter($useRequest);
+
+        if (isset($filter['usage'])) {
+            switch ($filter['usage']) {
+                case 'unused':
+                    $filter['grb_use_count'] = 0;
+                    break;
+                case 'used':
+                    $filter[] = 'grb_use_count > 0';
+                    break;
+                case 'maxed':
+                    $filter[] = 'grb_use_max <= grb_use_count';
+                    break;
+                case 'unlimited':
+                    $filter['grb_use_max'] = 0;
+                    break;
+
+            }
+            unset($filter['usage']);
+        }
+
+        return $filter;
     }
 
 

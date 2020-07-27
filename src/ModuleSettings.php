@@ -5,12 +5,11 @@
  *
  * @package    GemsRandomizer
  * @subpackage Module
- * @author     mjong
- * @license    Not licensed, do not copy
+ * @author     Matijs de Jong <mjong@magnafacta.nl>
+ * @license    New BSD License
  */
 
 namespace GemsRandomizer;
-
 
 use Gems\Modules\ModuleSettingsAbstract;
 
@@ -18,6 +17,7 @@ use Gems\Modules\ModuleSettingsAbstract;
  *
  * @package    GemsRandomizer
  * @subpackage Module
+ * @license    New BSD License
  * @since      Class available since version 1.8.8
  */
 class ModuleSettings extends ModuleSettingsAbstract
@@ -31,12 +31,4 @@ class ModuleSettings extends ModuleSettingsAbstract
      * @var string
      */
     public static $eventSubscriber = ModuleSubscriber::class;
-
-    /**
-     * @return string
-     */
-    protected static function getCurrentDir()
-    {
-        return __DIR__;
-    }
 }
