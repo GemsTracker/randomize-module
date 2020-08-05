@@ -24,6 +24,11 @@ use Gems\Tracker\Field\FieldAbstract;
 class RandomizationField extends FieldAbstract
 {
     /**
+     * @var \Gems_User_User
+     */
+    protected $currentUser;
+    
+    /**
      * @var \Zend_Db_Adapter_Abstract
      */
     protected $db;
@@ -164,6 +169,9 @@ class RandomizationField extends FieldAbstract
     public function showRandomization($value)
     {
         if ($value) {
+            if (! $this->currentUser->hasPrivilege('prr.assignments.seeresult')) {
+                return '******';
+            }
             $assignment = $this->randomUtil->getRandomAssignment($value);
 
             if ($assignment && $assignment->exists) {

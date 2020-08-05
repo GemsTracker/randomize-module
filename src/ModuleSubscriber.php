@@ -80,7 +80,6 @@ class ModuleSubscriber implements EventSubscriberInterface
                 $blockMenu->addBrowsePage($translateAdapter->_('Values'), 'prr.values', 'randomization-value');
                 $blockMenu->addBrowsePage($translateAdapter->_('Assignments'), 'prr.assignments', 'randomization');
                 
-                
                 $menu->addHiddenPrivilege('prr.assignments.seeresult', $translateAdapter->_(
                     'Grant right to see the outcome of a randomization.'
                 ));
