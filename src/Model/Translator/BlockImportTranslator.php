@@ -129,6 +129,8 @@ class BlockImportTranslator extends \MUtil_Model_ModelTranslatorAbstract
 
             $this->_studyIds[$sResult['grs_study_id']] = $study;
             $this->addMultiOption('grb_study_id', $sResult['grs_study_id'], $study);
+
+            $row['study'] = $sResult['grs_study_id'];
         }
 
         $cond = $row['stratum'];
@@ -168,7 +170,7 @@ class BlockImportTranslator extends \MUtil_Model_ModelTranslatorAbstract
         if ($val && (! (isset($this->_valueIds[$val]) || in_array($val, $this->_valueIds)))) {
             $vModel  = $this->randomUtil->createValueModel(true, 'create');
             $vValues = [
-                'grv_study_id'    => isset($this->_studyIds[$study]) ? $this->_studyIds[$study] : $study,
+                'grv_study_id'    => $row['study'],
                 'grv_value'       => $val,
                 'grv_value_label' => $val,
             ];
