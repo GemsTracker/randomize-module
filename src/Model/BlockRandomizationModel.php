@@ -11,6 +11,7 @@
 
 namespace GemsRandomizer\Model;
 
+use GemsRandomizer\Model\Dependency\StudyValueDependency;
 use GemsRandomizer\Model\Dependency\UseCountDependency;
 
 use Gems\Conditions;
@@ -28,6 +29,11 @@ class BlockRandomizationModel extends \Gems_Model_JoinModel
      * @var \Gems_Loader
      */
     protected $loader;
+
+    /**
+     * @var \GemsRandomizer\Util\RandomUtil
+     */
+    protected $randomUtil;
 
     /**
      * @var \Gems_Util
@@ -60,30 +66,25 @@ class BlockRandomizationModel extends \Gems_Model_JoinModel
     {
         if (! $detailed) {
             $this->addLeftTable('gems__conditions', ['grb_condition' => 'gcon_id'], 'grb', false);
+            $this->addLeftTable('gemsrnd__randomization_studies', ['grb_study_id' => 'grs_study_id'], 'grs', false);
+            $this->addLeftTable('gemsrnd__randomization_values', ['grb_value_id' => 'grv_value', 'grb_study_id' => 'grv_study_id'], 'grv', false);
         }
         $this->resetOrder();
         if ($detailed) {
             $this->copyKeys();
         }
 
-        $this->set('grb_study_name', 'label', $this->_('Study name'),
-                   'description', $this->_('The study name is used to group blocks.'),
-                   'import_descr', $this->_('The study name is used to group blocks.')
-        );
-        $this->set('grb_value_order', 'label', $this->_('Selection order'),
-                   'default', '',
-                   'description', $this->_('The order of use within a study, leave empty to add to end of stack.'),
-                   'import_descr', $this->_('The order of use within a study, leave empty to add by order of import.'),
-                   'required', false,
-                   'validators[int]', 'Int',
-                   'validators[unique]', $this->createUniqueValidator(['grb_value_order', 'grb_study_name'], ['grb_value_id']));
-
-        $this->set('grb_value_id', 'label', $this->_('Block id'),
-            'description', $this->_('A unique name identifying the randomization value.'),
-           'import_descr', $this->_('A unique name identifying the randomization value.'),
-           'validators[unique]', $this->createUniqueValidator('grb_value_id'));
-        $this->set('grb_value', 'label', $this->_('Block value'),
-                   'description', $this->_('The outcome value assigned to a randomization.'));
+        if ($detailed) {
+            $this->set('grb_study_id', 'label', $this->_('Study name'),
+                       'description', $this->_('The study name is used to group blocks.'),
+                       'import_descr', $this->_('The study name is used to group blocks.'),
+                       'multiOptions', $this->randomUtil->getRandomStudies()
+            );
+        } else {
+            $this->set('grs_study_name', 'label', $this->_('Study name'),
+                       'description', $this->_('The study name is used to group blocks.')
+            );
+        }
 
         $this->set('grb_condition',
                    'multiOptions', $this->loader->getConditions()->getConditionsFor(Conditions::TRACK_CONDITION, false));
@@ -97,6 +98,24 @@ class BlockRandomizationModel extends \Gems_Model_JoinModel
                        'description', $this->_('A stratum is a track level condition.') . ' ' .
                        $this->_('See Track builder: Conditions.'));
         }
+
+        $this->set('grb_block_id', 'label', $this->_('Assignment id'),
+            'description', $this->_('A unique name identifying the randomization value.'),
+           'import_descr', $this->_('A unique name identifying the randomization value.'),
+           'validators[unique]', $this->createUniqueValidator('grb_block_id')
+        );
+        $this->set('grb_value_order', 'label', $this->_('Selection order'),
+                   'default', '',
+                   'description', $this->_('The order of use within a study, leave empty to add to end of stack.'),
+                   'import_descr', $this->_('The order of use within a study, leave empty to add by order of import.'),
+                   'required', false,
+                   'validators[int]', 'Int',
+                   'validators[unique]', $this->createUniqueValidator(['grb_value_order', 'grb_study_id'], ['grb_block_id']));
+
+        $this->set('grb_value_id', 'label', $this->_('Assign value'),
+                   'description', $this->_('The outcome value assigned to a randomization.'),
+                    'multiOptions', $this->randomUtil->getRandomValues()
+        );
 
         $this->set('grb_block_description', 'label', $this->_('Block Description'),
                    'description', $this->_('Optional block description, not used by GemsTracker'),
@@ -126,6 +145,7 @@ class BlockRandomizationModel extends \Gems_Model_JoinModel
             'multiOptions', $this->util->getDbLookup()->getStaff());
 
         if ($detailed) {
+            $this->addDependency(new StudyValueDependency($this->randomUtil));
             $this->addDependency(new UseCountDependency());
         }
 
@@ -145,11 +165,11 @@ class BlockRandomizationModel extends \Gems_Model_JoinModel
     protected function _save(array $newValues, array $filter = null, array $saveTables = null)
     {
         if (! (isset($newValues['grb_value_order']) && $newValues['grb_value_order'])) {
-            if ( isset($newValues['grb_study_name'])) {
+            if ( isset($newValues['grb_study_id'])) {
                 $db  = $this->getAdapter();
-                $sql = "SELECT COALESCE(MAX(grb_value_order), 0) + 10  FROM gemsrnd__randomization_blocks WHERE grb_study_name = ?";
-                $newValues['grb_value_order'] = $db->fetchOne($sql,  $newValues['grb_study_name']);
-                \MUtil_Echo::track($newValues['grb_value_order']);
+                $sql = "SELECT COALESCE(MAX(grb_value_order), 0) + 10  FROM gemsrnd__randomization_blocks WHERE grb_study_id = ?";
+                $newValues['grb_value_order'] = $db->fetchOne($sql,  $newValues['grb_study_id']);
+                // \MUtil_Echo::track($newValues['grb_value_order']);
             }
         }
 

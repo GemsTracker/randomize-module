@@ -47,7 +47,7 @@ class RandomizerSearchSnippet extends \Gems_Snippets_AutosearchFormSnippet
         $elements = parent::getAutoSearchElements($data);
 
         $elements['grb_study_name'] = $this->_createSelectElement('grb_study_name',  $this->randomUtil->getRandomStudies(), $this->_('(all studies)'));
-        $elements['grb_condition'] = $this->_createSelectElement('grb_condition',  $this->model, $this->_('(all strata)'));
+        $elements['grb_condition']  = $this->_createSelectElement('grb_condition',  $this->model, $this->_('(all strata)'));
         $usages = [
             'unused'    => $this->_('Unused'),
             'used'      => $this->_('Used'),

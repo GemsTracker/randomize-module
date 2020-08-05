@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Pulse NL\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-07-27 16:09+0200\n"
+"POT-Creation-Date: 2020-08-05 16:53+0200\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Matijs de Jong <mjong@magnafacta.nl>\n"
 "Language-Team: Erasmus MGZ <matijs.de.jong@magnafacta.nl>\n"
@@ -18,127 +18,366 @@ msgstr ""
 "X-Poedit-SearchPath-0: src\n"
 "X-Poedit-SearchPath-1: controllers\n"
 
-#: controllers/RandomizationController.php:80
+#: controllers/RandomizationController.php:95
 msgid "Direct import"
 msgstr "Directe import"
 
-#: controllers/RandomizationController.php:93 src/ModuleSubscriber.php:71
-msgid "Block randomization"
-msgstr "Blok randomizatie"
+#: controllers/RandomizationController.php:108 src/ModuleSubscriber.php:81
+msgid "Assignments"
+msgstr "Toewijzingen"
 
-#: controllers/RandomizationController.php:137
+#: controllers/RandomizationController.php:152
 msgid "randomization block"
 msgid_plural "randomization blocks"
 msgstr[0] "randomisatie blok"
 msgstr[1] "randomisatie blokken"
 
-#: src/Model/BlockRandomizationModel.php:69
+#: controllers/RandomizationStrataController.php:106
+#: src/ModuleSubscriber.php:79
+msgid "Strata"
+msgstr "Strata"
+
+#: controllers/RandomizationStrataController.php:117
+msgid "stratum"
+msgid_plural "strata"
+msgstr[0] "stratum"
+msgstr[1] "strata"
+
+#: controllers/RandomizationStudyController.php:84
+msgid "Randomization studies"
+msgstr "Randomisatie studies"
+
+#: controllers/RandomizationStudyController.php:95
+msgid "randomization study"
+msgid_plural "randomization studies"
+msgstr[0] "randomisatie studie"
+msgstr[1] "randomisatie studies"
+
+#: controllers/RandomizationValueController.php:77
+msgid "Randomization values"
+msgstr "Randomisatie waarden"
+
+#: controllers/RandomizationValueController.php:88
+msgid "randomization value"
+msgid_plural "randomization values"
+msgstr[0] "randomisatie waarde"
+msgstr[1] "randomisatie waarden"
+
+#: src/Model/BlockRandomizationModel.php:78
+#: src/Model/BlockRandomizationModel.php:84
+#: src/Model/RandomizationStudyModel.php:52
+#: src/Model/RandomizationValueModel.php:60
+#: src/Model/RandomizationValueModel.php:65
 msgid "Study name"
 msgstr "Studienaam"
 
-#: src/Model/BlockRandomizationModel.php:70
-#: src/Model/BlockRandomizationModel.php:71
+#: src/Model/BlockRandomizationModel.php:79
+#: src/Model/BlockRandomizationModel.php:80
+#: src/Model/BlockRandomizationModel.php:85
+#: src/Model/RandomizationStudyModel.php:53
+#: src/Model/RandomizationValueModel.php:61
+#: src/Model/RandomizationValueModel.php:66
 msgid "The study name is used to group blocks."
 msgstr "De studienaam wordt gebruikt om blokken te groeperen."
 
-#: src/Model/BlockRandomizationModel.php:73
+#: src/Model/BlockRandomizationModel.php:92
+#: src/Model/BlockRandomizationModel.php:97
+msgid "Stratum / condition"
+msgstr "Stratum / voorwaarde"
+
+#: src/Model/BlockRandomizationModel.php:93
+#: src/Model/BlockRandomizationModel.php:94
+#: src/Model/BlockRandomizationModel.php:98
+msgid "A stratum is a track level condition."
+msgstr "Een stratum is een voorwaarde op traject niveau."
+
+#: src/Model/BlockRandomizationModel.php:95
+msgid "If it does not exist it will be created as an inactive condition."
+msgstr ""
+"Als de voorwaarde niet bestaat wordt een inactieve voorwaarde aangemaakt."
+
+#: src/Model/BlockRandomizationModel.php:99
+msgid "See Track builder: Conditions."
+msgstr "Zie Trajectbouwer: Voorwaarden."
+
+#: src/Model/BlockRandomizationModel.php:102
+msgid "Assignment id"
+msgstr "Toewijzings id"
+
+#: src/Model/BlockRandomizationModel.php:103
+#: src/Model/BlockRandomizationModel.php:104
+msgid "A unique name identifying the randomization value."
+msgstr "Een unieke naam die de randomisatie indentificeerd."
+
+#: src/Model/BlockRandomizationModel.php:107
 msgid "Selection order"
 msgstr "Volgorde van selectie"
 
-#: src/Model/BlockRandomizationModel.php:75
+#: src/Model/BlockRandomizationModel.php:109
 msgid "The order of use within a study, leave empty to add to end of stack."
 msgstr ""
 "De gebruiksvolgorde binnen een studie. Leeglaten om als laatste in te voegen."
 
-#: src/Model/BlockRandomizationModel.php:76
+#: src/Model/BlockRandomizationModel.php:110
 msgid "The order of use within a study, leave empty to add by order of import."
 msgstr ""
 "De gebruiksvolgorde binnen een studie. Leeglaten om op volgorde van import "
 "in te voegen."
 
-#: src/Model/BlockRandomizationModel.php:81
-msgid "Block id"
-msgstr "Blok id"
+#: src/Model/BlockRandomizationModel.php:115
+msgid "Assign value"
+msgstr "Toewijs waarde"
 
-#: src/Model/BlockRandomizationModel.php:82
-#: src/Model/BlockRandomizationModel.php:83
-msgid "A unique name identifying the randomization value."
-msgstr "Een unieke naam die de randomisatie indentificeerd."
-
-#: src/Model/BlockRandomizationModel.php:85
-msgid "Block value"
-msgstr "Blok waarde"
-
-#: src/Model/BlockRandomizationModel.php:86
+#: src/Model/BlockRandomizationModel.php:116
 msgid "The outcome value assigned to a randomization."
 msgstr "De uitkomst waarde bij randomizeren."
 
-#: src/Model/BlockRandomizationModel.php:91
-#: src/Model/BlockRandomizationModel.php:96
-msgid "Stratum / condition"
-msgstr "Stratum / voorwaarde"
-
-#: src/Model/BlockRandomizationModel.php:92
-#: src/Model/BlockRandomizationModel.php:93
-#: src/Model/BlockRandomizationModel.php:97
-msgid "A stratum is a track level condition."
-msgstr "Een stratum is een voorwaarde op traject niveau."
-
-#: src/Model/BlockRandomizationModel.php:94
-msgid "If it does not exist it will be created as an inactive condition."
-msgstr ""
-"Als de voorwaarde niet bestaat wordt een inactieve voorwaarde aangemaakt."
-
-#: src/Model/BlockRandomizationModel.php:98
-msgid "See Track builder: Conditions."
-msgstr "Zie Trajectbouwer: Voorwaarden."
-
-#: src/Model/BlockRandomizationModel.php:101
+#: src/Model/BlockRandomizationModel.php:120
 msgid "Block Description"
 msgstr "Blok omschrijving"
 
-#: src/Model/BlockRandomizationModel.php:102
+#: src/Model/BlockRandomizationModel.php:121
 msgid "Optional block description, not used by GemsTracker"
 msgstr "Optionele omschrijving voor het blok, niet gebruikt door GemsTracker"
 
-#: src/Model/BlockRandomizationModel.php:103
-#: src/Model/BlockRandomizationModel.php:105
-#: src/Model/BlockRandomizationModel.php:106
+#: src/Model/BlockRandomizationModel.php:122
+#: src/Model/BlockRandomizationModel.php:124
+#: src/Model/BlockRandomizationModel.php:125
 msgid "Optional extra information, not used by GemsTracker"
 msgstr "Optionele extra informatie, niet gebruikt door GemsTracker"
 
-#: src/Model/BlockRandomizationModel.php:104
+#: src/Model/BlockRandomizationModel.php:123
 msgid "Block Info"
 msgstr "Blok informatie"
 
-#: src/Model/BlockRandomizationModel.php:108
+#: src/Model/BlockRandomizationModel.php:127
+#: src/Model/RandomizationStudyModel.php:57
 msgid "Active"
 msgstr "Actief"
 
-#: src/Model/BlockRandomizationModel.php:113
+#: src/Model/BlockRandomizationModel.php:132
 msgid "Usage"
 msgstr "Gebruik"
 
-#: src/Model/BlockRandomizationModel.php:115
+#: src/Model/BlockRandomizationModel.php:134
 msgid "Maximum"
 msgstr "Maximum"
 
-#: src/Model/BlockRandomizationModel.php:116
-#: src/Model/BlockRandomizationModel.php:117
+#: src/Model/BlockRandomizationModel.php:135
+#: src/Model/BlockRandomizationModel.php:136
 msgid "0 means unlimited use"
 msgstr "0 betekent onbeperkt gebruik"
 
-#: src/Model/BlockRandomizationModel.php:121
+#: src/Model/BlockRandomizationModel.php:140
 msgid "Changed on"
 msgstr "Veranderd op"
 
-#: src/Model/BlockRandomizationModel.php:124
+#: src/Model/BlockRandomizationModel.php:143
 msgid "Changed by"
 msgstr "Veranderd door"
 
-#: src/ModuleSubscriber.php:106
+#: src/Model/RandomizationStudyModel.php:69
+#: src/Model/RandomizationValueModel.php:82
+#: src/Snippets/Randomizer/RandomizerSearchSnippet.php:53
+msgid "Used"
+msgstr "Gebruikt"
+
+#: src/Model/RandomizationStudyModel.php:72
+#: src/Model/RandomizationValueModel.php:85
+#: src/Snippets/Randomizer/RandomizerSearchSnippet.php:52
+msgid "Unused"
+msgstr "Ongebruikt"
+
+#: src/Model/RandomizationStudyModel.php:75
+#: src/Model/RandomizationValueModel.php:88
+msgid "Total"
+msgstr "Totaal"
+
+#: src/Model/RandomizationValueModel.php:69
+msgid "Randomization export value"
+msgstr "Randomisatie export waarde"
+
+#: src/Model/RandomizationValueModel.php:70
+msgid "The outcome value assigned to a randomization, used for export."
+msgstr "De uitkomst waarde bij randomiseren, gebruikt voor export."
+
+#: src/Model/RandomizationValueModel.php:72
+msgid "Randomization value label"
+msgstr "Randomisatie waarde weergave"
+
+#: src/Model/RandomizationValueModel.php:73
+msgid "The outcome label shown in the field."
+msgstr "De uitkomstwaarde getoond in  het veld."
+
+#: src/ModuleSubscriber.php:76
+msgid "Block randomization"
+msgstr "Blok randomizatie"
+
+#: src/ModuleSubscriber.php:78
+msgid "Studies"
+msgstr "Studies"
+
+#: src/ModuleSubscriber.php:80
+msgid "Values"
+msgstr "Waarden"
+
+#: src/ModuleSubscriber.php:85
+msgid "Grant right to see the outcome of a randomization."
+msgstr "Heeft het recht randomisatie uitkomsten te zien."
+
+#: src/ModuleSubscriber.php:140
 msgid "Randomization"
 msgstr "Randomisatie"
+
+#: src/Snippets/Randomizer/AddRandomizerInformation.php:42
+msgid "Block randomization explanation"
+msgstr "Blok randomisatie uitleg"
+
+#: src/Snippets/Randomizer/AddRandomizerInformation.php:44
+msgid ""
+"Block randomization is used to automatically assign randomization outcomes "
+"to track fields."
+msgstr ""
+"Blok randomisatie wordt gebruikt om automatisch randomisatie uitkomsten aan "
+"trajectvelden toe te wijzen."
+
+#: src/Snippets/Randomizer/AddRandomizerInformation.php:45
+msgid ""
+"The randomization outcome is the free assignment with the lowest selection "
+"order, if the track is valid for the assigment stratum."
+msgstr ""
+"De randomisatie uitkomst is een toewijzing die nog gebruikt kan worden met "
+"de laagste volgorde, indien het traject aan het stratum voldoet."
+
+#: src/Snippets/Randomizer/AddRandomizerInformation.php:48
+msgid "Step 1: Create a study"
+msgstr "Stap 1: Maak een studie"
+
+#: src/Snippets/Randomizer/AddRandomizerInformation.php:50
+msgid "Studies are just labels to allow multiple randomizations in a project."
+msgstr ""
+"Studies zijn eenvoudige labels die meerdere randomisaties in een project "
+"mogelijk maken."
+
+#: src/Snippets/Randomizer/AddRandomizerInformation.php:51
+msgid ""
+"If an assignment import contains a new study it will automatically be "
+"created."
+msgstr ""
+"Als de import van toewijzingen een nieuwe studie bevat, wordt deze gecreëerd."
+
+#: src/Snippets/Randomizer/AddRandomizerInformation.php:54
+msgid "Step 2: Create / design strata"
+msgstr "Stap 2: Maak / ontwerp strata"
+
+#: src/Snippets/Randomizer/AddRandomizerInformation.php:56
+msgid "Strata are track-level conditions."
+msgstr "Strata zijn voorwaarden op traject niveau."
+
+#: src/Snippets/Randomizer/AddRandomizerInformation.php:57
+msgid ""
+"You can create these conditions both here and in the Track builder "
+"Conditions page."
+msgstr ""
+"Deze trajectvoorwaarden kunnen zowel hier als op de Trajectbouwer "
+"Voorwaarden pagina gemaakt worden."
+
+#: src/Snippets/Randomizer/AddRandomizerInformation.php:58
+msgid "Create a track condition on age, location, etc..."
+msgstr "Creëer een trajectvoorwaarde op leeftijd, vestiging, etc..."
+
+#: src/Snippets/Randomizer/AddRandomizerInformation.php:59
+msgid ""
+"If an assignment import contains a new stratum an inactive skeleton stratum "
+"will automatically be created."
+msgstr ""
+"Als de import van toewijzingen een nieuw stratum bevat, wordt automatisch "
+"een inactief skelet stratum gecreëerd."
+
+#: src/Snippets/Randomizer/AddRandomizerInformation.php:62
+msgid "Step 3: Determine the outcome values"
+msgstr "Stap 3: Bepaal de uitkomst waarden"
+
+#: src/Snippets/Randomizer/AddRandomizerInformation.php:64
+msgid "Per study you can define the outcome values used."
+msgstr "Per studie kan je aangeven welke uitkomstwaarden gebruikt worden."
+
+#: src/Snippets/Randomizer/AddRandomizerInformation.php:65
+msgid "The export values must be unique per study."
+msgstr "De export waarden moeten uniek zijn binnen een studie."
+
+#: src/Snippets/Randomizer/AddRandomizerInformation.php:66
+msgid ""
+"The label value is what is shown to the users who are allowed to see the the "
+"outcomes."
+msgstr ""
+"De weergave waarde is wat de gebruikers zien die de uitkomst mogen inkijken."
+
+#: src/Snippets/Randomizer/AddRandomizerInformation.php:67
+msgid ""
+"If an assignment import contains a new value, this value will be created."
+msgstr ""
+"Als de import van toewijzingen een nieuwe waarde bevat, wordt deze waarde "
+"automatisch gecreëerd."
+
+#: src/Snippets/Randomizer/AddRandomizerInformation.php:70
+msgid "Step 4: Create assignments"
+msgstr "Stap 4: Creëer de toewijzingen"
+
+#: src/Snippets/Randomizer/AddRandomizerInformation.php:72
+msgid "Randomization values are assigned from the assignments table."
+msgstr ""
+"Randomisatie uitkomsten worden toegewezen middels de tabel met toewijzingen."
+
+#: src/Snippets/Randomizer/AddRandomizerInformation.php:73
+msgid "Assignments have to satisfy a stratum to be used."
+msgstr "Toewijzingen moeten voldoen aan een stratum om gebruikt te worden."
+
+#: src/Snippets/Randomizer/AddRandomizerInformation.php:74
+msgid "The assignment with the lowest order that has free uses is used first."
+msgstr ""
+"De toewijzing met de laagste volgorde en die nog gebruikt kan worden, wordt "
+"als eerste gebruikt."
+
+#: src/Snippets/Randomizer/AddRandomizerInformation.php:75
+msgid "The id and value of a used assignment cannot be changed."
+msgstr ""
+"Het id en de waarde van een gebruikte toewijzing kunnen niet verandert "
+"worden."
+
+#: src/Snippets/Randomizer/AddRandomizerInformation.php:76
+msgid ""
+"During assignment import you can fill this table without first taking the "
+"other steps."
+msgstr ""
+"Tijdens het importeren van toewijzingen kan je de hele tabel vullen zonder "
+"de eerdere stappen te nemen."
+
+#: src/Snippets/Randomizer/AddRandomizerInformation.php:79
+msgid "Step 5: Create the track fields"
+msgstr "Stap 5: Creëer de traject velden"
+
+#: src/Snippets/Randomizer/AddRandomizerInformation.php:81
+msgid ""
+"To use randomization values with a track, add a Randomization type track "
+"field."
+msgstr ""
+"Om randomisatie waarden toe te wijzen aan een traject, voeg een trajectveld "
+"toe van het type Randomisatie."
+
+#: src/Snippets/Randomizer/AddRandomizerInformation.php:82
+msgid ""
+"Make sure all fields used by strata are placed before the Randomization "
+"field."
+msgstr ""
+"Let er op dat de velden die gebruikt worden door de strata voor het "
+"Randomisatie veld staan."
+
+#: src/Snippets/Randomizer/AddRandomizerInformation.php:83
+msgid "Select a study to use, you may use one study in multiple fields."
+msgstr ""
+"Selecteer een studie voor gebruik, ja kan een studie kan gebruiken bij "
+"meerdere velden."
 
 #: src/Snippets/Randomizer/RandomizerSearchSnippet.php:49
 msgid "(all studies)"
@@ -147,14 +386,6 @@ msgstr "(alle studies)"
 #: src/Snippets/Randomizer/RandomizerSearchSnippet.php:50
 msgid "(all strata)"
 msgstr "(alle strata)"
-
-#: src/Snippets/Randomizer/RandomizerSearchSnippet.php:52
-msgid "Unused"
-msgstr "Ongebruikt"
-
-#: src/Snippets/Randomizer/RandomizerSearchSnippet.php:53
-msgid "Used"
-msgstr "Gebruikt"
 
 #: src/Snippets/Randomizer/RandomizerSearchSnippet.php:55
 msgid "Maxed out"
@@ -180,9 +411,14 @@ msgstr "Studie blokken"
 msgid "Select the study name for this randomization"
 msgstr "Kies de studienaam voor deze randomizatie"
 
-#: src/Util/RandomUtil.php:32
-msgid " - outcomes: "
-msgstr " - uitkomsten: "
+#~ msgid "Block id"
+#~ msgstr "Blok id"
+
+#~ msgid "Block value"
+#~ msgstr "Blok waarde"
+
+#~ msgid " - outcomes: "
+#~ msgstr " - uitkomsten: "
 
 #~ msgid "Select the track conditions for selected strata"
 #~ msgstr "Kies de trajectvoorwaarde voor geselecteerde strata"

@@ -2,25 +2,25 @@
 
 /**
  *
- * @package    GemsRandomize
- * @subpackage Tracker\Model\Dependency
+ * @package    GemsRandomizer
+ * @subpackage Model\Dependency
  * @author     Matijs de Jong <mjong@magnafacta.nl>
  * @copyright  Copyright (c) 2020, Erasmus MC and MagnaFacta B.V.
- * @license    No free license, do not copy
+ * @license    New BSD License
  */
 
 namespace GemsRandomizer\Model\Dependency;
 
-use MUtil\Model\Dependency\DependencyAbstract;
+use GemsRandomizer\Util\RandomUtil;
 
 /**
  *
- * @package    GemsRandomize
- * @subpackage Tracker\Model\Dependency
- * @license    No free license, do not copy
+ * @package    GemsRandomizer
+ * @subpackage Model\Dependency
+ * @license    New BSD License
  * @since      Class available since version 1.8.8
  */
-class UseCountDependency extends DependencyAbstract
+class StudyValueDependency extends \MUtil\Model\Dependency\DependencyAbstract
 {
     /**
      * Array of setting => setting of setting changed by this dependency
@@ -29,7 +29,7 @@ class UseCountDependency extends DependencyAbstract
      *
      * @var array
      */
-    protected $_defaultEffects = ['readonly'];
+    protected $_defaultEffects = ['multiOptions'];
 
     /**
      * Array of name => name of items dependency depends on.
@@ -39,7 +39,7 @@ class UseCountDependency extends DependencyAbstract
      *
      * @var array Of name => name
      */
-    protected $_dependentOn = ['grb_use_count'];
+    protected $_dependentOn = ['grb_study_id'];
 
     /**
      * Array of name => array(setting => setting) of fields with settings changed by this dependency
@@ -49,19 +49,31 @@ class UseCountDependency extends DependencyAbstract
      *
      * @var array of name => array(setting => setting)
      */
-    protected $_effecteds = ['grb_block_id', 'grb_value_id', 'grb_use_count'];
+    protected $_effecteds = ['grb_value_id'];
 
+    /**
+     * @var \GemsRandomizer\Util\RandomUtil
+     */
+    protected $randomUtil;
+
+    /**
+     * Constructor checks any subclass set variables
+     *
+     * @param \GemsRandomizer\Util\RandomUtil $randomUtil
+     */
+    public function __construct(RandomUtil $randomUtil)
+    {
+        $this->randomUtil = $randomUtil;
+        
+        parent::__construct();
+    }    
+    
     /**
      * @inheritDoc
      */
     public function getChanges(array $context, $new)
     {
-        $output = [];
-        if ($context['grb_use_count'] > 0) {
-            foreach ($this->getEffecteds() as $fieldname => $effects) {
-                $output[$fieldname] = ['readonly' => 'readonly'];
-            }
-        }
-        return $output;
+        $studyId = isset($context['grb_study_id']) ? $context['grb_study_id'] : null;
+        return ['grb_value_id' => ['multiOptions' => $this->randomUtil->getRandomValues($studyId)]]; 
     }
 }

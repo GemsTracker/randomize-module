@@ -24,11 +24,6 @@ use Gems\Tracker\Field\FieldAbstract;
 class RandomizationField extends FieldAbstract
 {
     /**
-     * @var string
-     */
-    protected $_glue = "\t";
-
-    /**
      * @var \Zend_Db_Adapter_Abstract
      */
     protected $db;
@@ -43,6 +38,11 @@ class RandomizationField extends FieldAbstract
      */
     protected $menu;
 
+    /**
+     * @var \GemsRandomizer\Util\RandomUtil
+     */
+    protected $randomUtil;
+    
     /**
      * @var \Zend_Controller_Request_Abstract
      */
@@ -76,9 +76,10 @@ class RandomizationField extends FieldAbstract
     public function calculateFieldInfo($currentValue, array $fieldData)
     {
         if ($currentValue) {
-            $parts = explode($this->_glue, $currentValue);
-            if (isset($parts[1])) {
-                return $parts[1];
+            $assignment = $this->randomUtil->getRandomAssignment($currentValue);
+
+            if ($assignment && $assignment->exists) {
+                return $assignment->getValueLabel();
             }
         }
 
@@ -106,13 +107,14 @@ class RandomizationField extends FieldAbstract
 
         // \MUtil_Echo::track($study);
 
-        $sql1 = "SELECT grb_condition, grb_condition
+        $sql1 = "SELECT grb_condition
                     FROM gemsrnd__randomization_blocks
-                    WHERE grb_use_max > grb_use_count AND grb_active = 1 AND grb_study_name = ?
-                    GROUP BY grb_condition";
+                    WHERE grb_use_max > grb_use_count AND grb_active = 1 AND grb_study_id = ?
+                    GROUP BY grb_condition
+                    ORDER BY MIN(grb_value_order) ASC";
 
         // \MUtil_Echo::track($study, $sql1);
-        $condIds = $this->db->fetchPairs($sql1, [$study]);
+        $condIds = $this->db->fetchCol($sql1, [$study]);
         // \MUtil_Echo::track(count($condIds));
         if (! $condIds) {
             return null;
@@ -133,10 +135,10 @@ class RandomizationField extends FieldAbstract
             return null;
         }
 
-        $sql2 = "SELECT grb_value_id, grb_value, grb_use_count
+        $sql2 = "SELECT grb_block_id, grb_use_count
                     FROM gemsrnd__randomization_blocks
                     WHERE (grb_use_max > grb_use_count OR grb_use_max = 0) AND grb_active = 1 AND 
-                          grb_condition = ? AND grb_study_name = ?
+                          grb_condition = ? AND grb_study_id = ?
                     ORDER BY grb_value_order";
         // \MUtil_Echo::track($outputCondition, $sql2);
         $block = $this->db->fetchRow($sql2, [$outputCondition, $study]);
@@ -146,12 +148,11 @@ class RandomizationField extends FieldAbstract
         }
 
         $this->db->update('gemsrnd__randomization_blocks', ['grb_use_count' => $block['grb_use_count'] + 1], [
-            'grb_value_id = ?' => $block['grb_value_id'],
-            'grb_study_name = ?' => $study
+            'grb_block_id = ?' => $block['grb_block_id'],
+            'grb_study_id = ?' => $study
             ]);
 
-        $output = [$block['grb_value_id'], $block['grb_value']];
-        return implode($this->_glue, $output);
+        return $block['grb_block_id'];
     }
 
     /**
@@ -163,24 +164,23 @@ class RandomizationField extends FieldAbstract
     public function showRandomization($value)
     {
         if ($value) {
-            $parts = explode($this->_glue, $value);
-            if (isset($parts[1])) {
-                \MUtil_Echo::track($parts);
-                //*
+            $assignment = $this->randomUtil->getRandomAssignment($value);
+
+            if ($assignment && $assignment->exists) {
                 $showItem = $this->menu->findAllowedController('randomization', 'show');
                 if ($showItem) {
                     if (! $this->request) {
                         $this->request = \Zend_Controller_Front::getInstance()->getRequest();
                     }
                     $href = $showItem->toHRefAttribute(
-                        [\MUtil_Model::REQUEST_ID => $parts[0]],
+                        [\MUtil_Model::REQUEST_ID => $assignment->getBlockId()],
                         $this->request
                     );
                     if ($href) {
-                        return \MUtil_Html::create('a', $href, $parts[1]);
+                        return \MUtil_Html::create('a', $href, $assignment->getValueLabel());
                     }
-                } // */
-                return $parts[1];
+                } 
+                return $assignment->getValueLabel();
             }
         }
 

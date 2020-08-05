@@ -2,24 +2,24 @@
 
 /**
  *
- *
  * @package    GemsRandomizer
  * @subpackage Controller
- * @author     mjong
+ * @author     Matijs de Jong <mjong@magnafacta.nl>
+ * @copyright  Copyright (c) 2020, Erasmus MC and MagnaFacta B.V.
  * @license    New BSD License
  */
 
 use GemsRandomizer\Controller\RandomizationControllerAbstract;
-use GemsRandomizer\Model\BlockRandomizationModel;
-use GemsRandomizer\Model\Translator\BlockImportTranslator;
+use GemsRandomizer\Model\RandomizationStudyModel;
 
 /**
  *
  * @package    GemsRandomizer
  * @subpackage Controller
+ * @license    New BSD License
  * @since      Class available since version 1.8.8
  */
-class RandomizationController extends RandomizationControllerAbstract
+class RandomizationStudyController extends RandomizationControllerAbstract
 {
     /**
      * The parameters used for the autofilter action.
@@ -34,9 +34,15 @@ class RandomizationController extends RandomizationControllerAbstract
     protected $autofilterParameters = [
         'extraSort' => [
             'grb_study_name' => SORT_ASC,
-            'grb_value_order' => SORT_ASC,
-            ],
-        ];
+        ],
+    ];
+
+    /**
+     * Variable to set tags for cache cleanup after changes
+     *
+     * @var array
+     */
+    public $cacheTags = ['randomstudies'];
 
     /**
      * Model level parameters used for all actions, overruled by any values set in any other
@@ -50,19 +56,7 @@ class RandomizationController extends RandomizationControllerAbstract
      *
      * @var array Mixed key => value array for snippet initialization
      */
-    protected $defaultParameters = ['randomizationStep' => 'assignments'];
-
-    /**
-     * The snippets used for the index action, before those in autofilter
-     *
-     * @var mixed String or array of snippets name
-     */
-    protected $indexStartSnippets = ['Generic\\ContentTitleSnippet', 'Randomizer\\RandomizerSearchSnippet'];
-
-    /**
-     * @var \MUtil_Registry_SourceInterface
-     */
-    public $source;
+    protected $defaultParameters = ['randomizationStep' => 'study'];
     
     /**
      * Creates a model for getModel(). Called only for each new $action.
@@ -77,27 +71,9 @@ class RandomizationController extends RandomizationControllerAbstract
      */
     protected function createModel($detailed, $action)
     {
-        $model = new BlockRandomizationModel();
-        $this->source->applySource($model);
-
-        $model->applySettings($detailed, $action);
-
-        return $model;
+        return $this->randomUtil->createStudyModel($detailed, $action);
     }
-
-    /**
-     * Get the possible translators for the import snippet.
-     *
-     * @return array of \MUtil_Model_ModelTranslatorInterface objects
-     */
-    public function getImportTranslators()
-    {
-        $trs = new BlockImportTranslator($this->_('Direct import'));
-        $this->applySource($trs);
-
-        return array('default' => $trs);
-    }
-
+    
     /**
      * Helper function to get the title for the index action.
      *
@@ -105,41 +81,8 @@ class RandomizationController extends RandomizationControllerAbstract
      */
     public function getIndexTitle()
     {
-        return $this->_('Assignments');
+        return $this->_('Randomization studies');
     }
-
-    /**
-     * Get the filter to use with the model for searching including model sorts, etc..
-     *
-     * @param boolean $useRequest Use the request as source (when false, the session is used)
-     * @return array or false
-     */
-    public function getSearchFilter($useRequest = true)
-    {
-        $filter = parent::getSearchFilter($useRequest);
-
-        if (isset($filter['usage'])) {
-            switch ($filter['usage']) {
-                case 'unused':
-                    $filter['grb_use_count'] = 0;
-                    break;
-                case 'used':
-                    $filter[] = 'grb_use_count > 0';
-                    break;
-                case 'maxed':
-                    $filter[] = 'grb_use_max <= grb_use_count';
-                    break;
-                case 'unlimited':
-                    $filter['grb_use_max'] = 0;
-                    break;
-
-            }
-            unset($filter['usage']);
-        }
-
-        return $filter;
-    }
-
 
     /**
      * Helper function to allow generalized statements about the items in the model.
@@ -149,6 +92,6 @@ class RandomizationController extends RandomizationControllerAbstract
      */
     public function getTopic($count = 1)
     {
-        return $this->plural('randomization block', 'randomization blocks', $count);
+        return $this->plural('randomization study', 'randomization studies', $count);
     }
 }

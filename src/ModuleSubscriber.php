@@ -72,7 +72,19 @@ class ModuleSubscriber implements EventSubscriberInterface
         if ($prevMenu) {
             $contMenu = $prevMenu->getParent();
 
-            $contMenu->addBrowsePage($translateAdapter->_('Block randomization'), 'pr.randomizations', 'randomization', ['order' => $prevMenu->get('order') + 4]);
+            if ($contMenu instanceof \Gems_Menu_MenuAbstract) {
+                $blockMenu = $contMenu->addContainer($translateAdapter->_('Block randomization'), null, ['order' => $prevMenu->get('order') + 4]);
+
+                $blockMenu->addBrowsePage($translateAdapter->_('Studies'), 'prr.studies', 'randomization-study');
+                $blockMenu->addBrowsePage($translateAdapter->_('Strata'), 'prr.strata', 'randomization-strata');
+                $blockMenu->addBrowsePage($translateAdapter->_('Values'), 'prr.values', 'randomization-value');
+                $blockMenu->addBrowsePage($translateAdapter->_('Assignments'), 'prr.assignments', 'randomization');
+                
+                
+                $menu->addHiddenPrivilege('prr.assignments.seeresult', $translateAdapter->_(
+                    'Grant right to see the outcome of a randomization.'
+                ));
+            }
         }
     }
 

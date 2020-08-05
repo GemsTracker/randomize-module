@@ -28,6 +28,21 @@ class BlockImportTranslator extends \MUtil_Model_ModelTranslatorAbstract
     protected $_conditionIds;
 
     /**
+     * @var array cond id => label
+     */
+    protected $_studyIds;
+
+    /**
+     * @var array cond id => export value
+     */
+    protected $_valueExportIds;
+
+    /**
+     * @var array cond id => value
+     */
+    protected $_valueIds;
+
+    /**
      *
      * @var \Zend_Db_Adapter_Abstract
      */
@@ -39,6 +54,11 @@ class BlockImportTranslator extends \MUtil_Model_ModelTranslatorAbstract
      */
     protected $loader;
 
+    /**
+     * @var \GemsRandomizer\Util\RandomUtil
+     */
+    protected $randomUtil;
+    
     /**
      * Create an empty form for filtering and validation
      *
@@ -58,11 +78,11 @@ class BlockImportTranslator extends \MUtil_Model_ModelTranslatorAbstract
     public function getFieldsTranslations()
     {
         return [
-            'id'          => 'grb_value_id',
+            'study'       => 'grb_study_id',
             'stratum'     => 'grb_condition',
-            'value'       => 'grb_value',
-            'study'       => 'grb_study_name',
+            'id'          => 'grb_block_id',
             'order'       => 'grb_value_order',
+            'value'       => 'grb_value_id',
             'description' => 'grb_block_description',
             'info'        => 'grb_block_info',
             'active'      => 'grb_active',
@@ -80,6 +100,8 @@ class BlockImportTranslator extends \MUtil_Model_ModelTranslatorAbstract
     public function setTargetModel(\MUtil_Model_ModelAbstract $targetModel)
     {
         $this->_conditionIds = $targetModel->get('grb_condition', 'multiOptions');
+        $this->_studyIds     = $targetModel->get('grb_study_id', 'multiOptions');
+        $this->_valueIds     = $targetModel->get('grb_value_id', 'multiOptions');
 
         return parent::setTargetModel($targetModel);
     }
@@ -93,6 +115,22 @@ class BlockImportTranslator extends \MUtil_Model_ModelTranslatorAbstract
      */
     public function translateRowValues($row, $key)
     {
+        $study = $row['study'];
+        // Create study if new
+        if ($study && (! (isset($this->_studyIds[$study]) || in_array($study, $this->_studyIds)))) {
+            // \MUtil_Echo::track($study, $this->_studyIds);
+            $sModel  = $this->randomUtil->createStudyModel(true, 'create');
+            $sValues = [
+                'grs_study_name' => $study,
+                'grs_active'     => 1,
+                ];
+
+            $sResult = $sModel->save($sValues);
+
+            $this->_studyIds[$sResult['grs_study_id']] = $study;
+            $this->addMultiOption('grb_study_id', $sResult['grs_study_id'], $study);
+        }
+
         $cond = $row['stratum'];
         // Create condition if new
         if ($cond && (! (isset($this->_conditionIds[$cond]) || in_array($cond, $this->_conditionIds)))) {
@@ -101,18 +139,44 @@ class BlockImportTranslator extends \MUtil_Model_ModelTranslatorAbstract
             reset($classes);
 
             // \MUtil_Echo::track($classes);
-            $cModel = $this->loader->getModels()->getConditionModel();
-            $values = [
+            $cModel  = $this->loader->getModels()->getConditionModel();
+            $cValues = [
                 'gcon_type'   => Conditions::TRACK_CONDITION,
                 'gcon_class'  => key($classes),
                 'gcon_name'   => $cond,
                 'gcon_active' => 0,
-                ];
+            ];
 
-            $result = $cModel->save($values);
+            $cResult = $cModel->save($cValues);
 
-            $this->_conditionIds[$result['gcon_id']] = $cond;
-            $this->addMultiOption('grb_condition', $result['gcon_id'], $cond);
+            $this->_conditionIds[$cResult['gcon_id']] = $cond;
+            $this->addMultiOption('grb_condition', $cResult['gcon_id'], $cond);
+        }
+
+        $val = $row['value'];
+        // Check for export values instead of label values 
+        if ($val && (! (isset($this->_valueIds[$val]) || in_array($val, $this->_valueIds)))) {
+            if ($study) {
+                $export = array_search($val, $this->randomUtil->getRandomExportValues($study));
+                if (false !== $export) {
+                    $val          = $export;
+                    $row['value'] = $export;
+                }
+            }
+        }
+        // Create value if new
+        if ($val && (! (isset($this->_valueIds[$val]) || in_array($val, $this->_valueIds)))) {
+            $vModel  = $this->randomUtil->createValueModel(true, 'create');
+            $vValues = [
+                'grv_study_id'    => isset($this->_studyIds[$study]) ? $this->_studyIds[$study] : $study,
+                'grv_value'       => $val,
+                'grv_value_label' => $val,
+            ];
+
+            $vResult = $vModel->save($vValues);
+
+            $this->_valueIds[$val] = $val;
+            $this->addMultiOption('grb_value_id', $val, $val);
         }
 
         $row = parent::translateRowValues($row, $key);
