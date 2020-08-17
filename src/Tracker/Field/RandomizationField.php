@@ -107,10 +107,8 @@ class RandomizationField extends FieldAbstract
         }
 
         $conditions = $this->loader->getConditions();
-        $respTrack  = $this->tracker->getRespondentTrack($trackData);
+        $respTrack  = $this->tracker->getRespondentTrack($trackData['gr2t_id_respondent_track']); // Request on track id, otherwise the data is reloaded from the db
         $study      = $this->_fieldDefinition['gtf_calculate_using'];
-
-        // \MUtil_Echo::track($study);
 
         $sql1 = "SELECT grb_condition
                     FROM gemsrnd__randomization_blocks

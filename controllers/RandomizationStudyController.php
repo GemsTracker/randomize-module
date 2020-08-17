@@ -57,7 +57,26 @@ class RandomizationStudyController extends RandomizationControllerAbstract
      * @var array Mixed key => value array for snippet initialization
      */
     protected $defaultParameters = ['randomizationStep' => 'study'];
-    
+
+    /**
+     * Reset action parameters 
+     *
+     * When the value is a function name of that object, then that functions is executed
+     * with the array key as single parameter and the return value is set as the used value
+     * - unless the key is an integer in which case the code is executed but the return value
+     * is not stored.
+     *
+     * @var array Mixed key => value array for snippet initialization
+     */
+    protected $resetParameters = [];
+
+    /**
+     * The snippets used for the index action, before those in autofilter
+     *
+     * @var mixed String or array of snippets name
+     */
+    protected $resetSnippets = ['Randomizer\\ResetStudyFormSnippet'];
+
     /**
      * Creates a model for getModel(). Called only for each new $action.
      *
@@ -93,5 +112,14 @@ class RandomizationStudyController extends RandomizationControllerAbstract
     public function getTopic($count = 1)
     {
         return $this->plural('randomization study', 'randomization studies', $count);
+    }
+    
+    public function resetAction()
+    {
+        if ($this->resetSnippets) {
+            $params = $this->_processParameters($this->resetParameters);
+
+            $this->addSnippets($this->resetSnippets, $params);
+        }
     }
 }

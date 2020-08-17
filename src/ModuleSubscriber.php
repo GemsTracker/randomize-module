@@ -75,11 +75,13 @@ class ModuleSubscriber implements EventSubscriberInterface
             if ($contMenu instanceof \Gems_Menu_MenuAbstract) {
                 $blockMenu = $contMenu->addContainer($translateAdapter->_('Block randomization'), null, ['order' => $prevMenu->get('order') + 4]);
 
-                $blockMenu->addBrowsePage($translateAdapter->_('Studies'), 'prr.studies', 'randomization-study');
+                $blockMenu->addBrowsePage($translateAdapter->_('Studies'), 'prr.studies', 'randomization-study')
+                    ->addAction($translateAdapter->_('Reset study'), 'prr.studies.reset', 'reset');
                 $blockMenu->addBrowsePage($translateAdapter->_('Strata'), 'prr.strata', 'randomization-strata');
                 $blockMenu->addBrowsePage($translateAdapter->_('Values'), 'prr.values', 'randomization-value');
                 $blockMenu->addBrowsePage($translateAdapter->_('Assignments'), 'prr.assignments', 'randomization');
                 
+                // See randomization outcome
                 $menu->addHiddenPrivilege('prr.assignments.seeresult', $translateAdapter->_(
                     'Grant right to see the outcome of a randomization.'
                 ));

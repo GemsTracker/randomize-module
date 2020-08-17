@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Pulse NL\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-08-05 16:53+0200\n"
+"POT-Creation-Date: 2020-08-17 18:13+0200\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Matijs de Jong <mjong@magnafacta.nl>\n"
 "Language-Team: Erasmus MGZ <matijs.de.jong@magnafacta.nl>\n"
@@ -14,7 +14,7 @@ msgstr ""
 "X-Poedit-SourceCharset: iso-8859-1\n"
 "X-Poedit-Basepath: ..\n"
 "X-Poedit-KeywordsList: plural:1,2\n"
-"X-Generator: Poedit 2.4\n"
+"X-Generator: Poedit 2.4.1\n"
 "X-Poedit-SearchPath-0: src\n"
 "X-Poedit-SearchPath-1: controllers\n"
 
@@ -22,7 +22,7 @@ msgstr ""
 msgid "Direct import"
 msgstr "Directe import"
 
-#: controllers/RandomizationController.php:108 src/ModuleSubscriber.php:81
+#: controllers/RandomizationController.php:108 src/ModuleSubscriber.php:82
 msgid "Assignments"
 msgstr "Toewijzingen"
 
@@ -33,7 +33,7 @@ msgstr[0] "randomisatie blok"
 msgstr[1] "randomisatie blokken"
 
 #: controllers/RandomizationStrataController.php:106
-#: src/ModuleSubscriber.php:79
+#: src/ModuleSubscriber.php:80
 msgid "Strata"
 msgstr "Strata"
 
@@ -43,11 +43,11 @@ msgid_plural "strata"
 msgstr[0] "stratum"
 msgstr[1] "strata"
 
-#: controllers/RandomizationStudyController.php:84
+#: controllers/RandomizationStudyController.php:103
 msgid "Randomization studies"
 msgstr "Randomisatie studies"
 
-#: controllers/RandomizationStudyController.php:95
+#: controllers/RandomizationStudyController.php:114
 msgid "randomization study"
 msgid_plural "randomization studies"
 msgstr[0] "randomisatie studie"
@@ -217,15 +217,19 @@ msgstr "Blok randomizatie"
 msgid "Studies"
 msgstr "Studies"
 
-#: src/ModuleSubscriber.php:80
+#: src/ModuleSubscriber.php:79
+msgid "Reset study"
+msgstr "Reset studie"
+
+#: src/ModuleSubscriber.php:81
 msgid "Values"
 msgstr "Waarden"
 
-#: src/ModuleSubscriber.php:85
+#: src/ModuleSubscriber.php:86
 msgid "Grant right to see the outcome of a randomization."
 msgstr "Heeft het recht randomisatie uitkomsten te zien."
 
-#: src/ModuleSubscriber.php:140
+#: src/ModuleSubscriber.php:141
 msgid "Randomization"
 msgstr "Randomisatie"
 
@@ -402,6 +406,38 @@ msgstr "(elk gebruik)"
 #: src/Snippets/Randomizer/RandomizerSearchSnippet.php:59
 msgid "(any active)"
 msgstr "(elke actief)"
+
+#: src/Snippets/Randomizer/ResetStudyFormSnippet.php:45
+msgid "Reset the study NOW!"
+msgstr "Reset de studie METEEN!"
+
+#: src/Snippets/Randomizer/ResetStudyFormSnippet.php:48
+msgid "Enter the name of the study"
+msgstr "Type de naam van de studie"
+
+#: src/Snippets/Randomizer/ResetStudyFormSnippet.php:49
+msgid "Resetting a study clears all randomization assignments to track fields."
+msgstr ""
+"Bij een studie-reset worden alle toewijzingen van randomisatie uitkomsten "
+"aan trajectvelden leeg gemaakt."
+
+#: src/Snippets/Randomizer/ResetStudyFormSnippet.php:54
+msgid "'%value%' is not an existing study!"
+msgstr "'%value%' bestaat niet als studie!"
+
+#: src/Snippets/Randomizer/ResetStudyFormSnippet.php:68
+msgid "Do you want to reset a study?"
+msgstr "Wil u een studie resetten?"
+
+#: src/Snippets/Randomizer/ResetStudyFormSnippet.php:95
+#, php-format
+msgid "Reset all randomization values for study %s."
+msgstr "Alle randomisatie waarden voor studie %s zijn gereset."
+
+#: src/Snippets/Randomizer/ResetStudyFormSnippet.php:96
+#, php-format
+msgid "Reset %d assignment(s) and %d track field(s)."
+msgstr "Reset uitgevoerd op %d toewijzing(en) and %d trajectveld(en)."
 
 #: src/Tracker/Model/Dependency/RandomizerDependency.php:112
 msgid "Study Blocks"
