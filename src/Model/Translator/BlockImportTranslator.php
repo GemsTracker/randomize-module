@@ -133,6 +133,8 @@ class BlockImportTranslator extends \MUtil_Model_ModelTranslatorAbstract
         $this->_studyIds     = $targetModel->get('grb_study_id', 'multiOptions');
         $this->_valueIds     = $targetModel->get('grb_value_id', 'multiOptions');
 
+        $targetModel->del('grb_block_id', 'validators');
+        
         return parent::setTargetModel($targetModel);
     }
 
