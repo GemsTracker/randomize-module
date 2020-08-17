@@ -70,6 +70,36 @@ class BlockImportTranslator extends \MUtil_Model_ModelTranslatorAbstract
     }
 
     /**
+     * Temp function to overrule incorrect MUtil 1.9.0 
+     * 
+     * @deprecated since 1.9.1 
+     * @param string $elementName
+     * @param mixed $index
+     * @param mixed $value
+     */
+    public function addMultiOption($elementName, $index, $value)
+    {
+        if ($this->_targetModel) {
+            if ($this->_targetModel->has($elementName, 'multiOptions')) {
+                $options = $this->_targetModel->get($elementName, 'multiOptions');
+                $options[$index] = $value;
+                $this->_targetModel->set($elementName, 'multiOptions', $options);
+            }
+        }
+        $element = $this->targetForm->getElement($elementName);
+        if ($element instanceof \Zend_Form_Element_Multi) {
+            $element->addMultiOption($index, $value);
+
+            $validator = $element->getValidator('InArray');
+            if ($validator instanceof \Zend_Validate_InArray) {
+                $haystack   = $validator->getHaystack();
+                $haystack[] = $index; // Validator contains only keus
+                $validator->setHaystack($haystack);
+            }
+        }
+    }
+    
+    /**
      * Get information on the field translations
      *
      * @return array of fields sourceName => targetName
@@ -118,7 +148,6 @@ class BlockImportTranslator extends \MUtil_Model_ModelTranslatorAbstract
         $study = $row['study'];
         // Create study if new
         if ($study && (! (isset($this->_studyIds[$study]) || in_array($study, $this->_studyIds)))) {
-            // \MUtil_Echo::track($study, $this->_studyIds);
             $sModel  = $this->randomUtil->createStudyModel(true, 'create');
             $sValues = [
                 'grs_study_name' => $study,
@@ -126,13 +155,15 @@ class BlockImportTranslator extends \MUtil_Model_ModelTranslatorAbstract
                 ];
 
             $sResult = $sModel->save($sValues);
+            // \MUtil_Echo::track($sResult, $this->_studyIds);
 
             $this->_studyIds[$sResult['grs_study_id']] = $study;
             $this->addMultiOption('grb_study_id', $sResult['grs_study_id'], $study);
 
             $row['study'] = $sResult['grs_study_id'];
         }
-
+        $studyId = isset($this->_studyIds[$study]) ? $this->_studyIds[$study] : array_search($study, $this->_studyIds);
+            
         $cond = $row['stratum'];
         // Create condition if new
         if ($cond && (! (isset($this->_conditionIds[$cond]) || in_array($cond, $this->_conditionIds)))) {
@@ -158,8 +189,8 @@ class BlockImportTranslator extends \MUtil_Model_ModelTranslatorAbstract
         $val = $row['value'];
         // Check for export values instead of label values 
         if ($val && (! (isset($this->_valueIds[$val]) || in_array($val, $this->_valueIds)))) {
-            if ($study) {
-                $export = array_search($val, $this->randomUtil->getRandomExportValues($study));
+            if ($studyId) {
+                $export = array_search($val, $this->randomUtil->getRandomExportValues($studyId));
                 if (false !== $export) {
                     $val          = $export;
                     $row['value'] = $export;
@@ -170,15 +201,16 @@ class BlockImportTranslator extends \MUtil_Model_ModelTranslatorAbstract
         if ($val && (! (isset($this->_valueIds[$val]) || in_array($val, $this->_valueIds)))) {
             $vModel  = $this->randomUtil->createValueModel(true, 'create');
             $vValues = [
-                'grv_study_id'    => $row['study'],
+                'grv_study_id'    => $studyId,
                 'grv_value'       => $val,
                 'grv_value_label' => $val,
             ];
 
             $vResult = $vModel->save($vValues);
+            // \MUtil_Echo::track($vResult, $vValues);
 
-            $this->_valueIds[$val] = $val;
-            $this->addMultiOption('grb_value_id', $val, $val);
+            $this->_valueIds[$vResult['grv_value_id']] = $val;
+            $this->addMultiOption('grb_value_id', $vResult['grv_value_id'], $val);
         }
 
         $row = parent::translateRowValues($row, $key);
