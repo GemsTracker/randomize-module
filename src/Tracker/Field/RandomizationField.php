@@ -128,7 +128,7 @@ class RandomizationField extends FieldAbstract
             $condition = $conditions->loadCondition($condId);
             if ($condition instanceof TrackConditionInterface) {
                 // \MUtil_Echo::track($condition->getName());
-                if ($condition->isTrackValid($respTrack)) {
+                if ($condition->isTrackValid($respTrack, $fieldData)) {
                     $outputCondition = $condId;
                     break;
                 }
