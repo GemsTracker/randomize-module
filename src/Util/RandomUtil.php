@@ -129,7 +129,7 @@ class RandomUtil extends UtilAbstract
             $sql .= " WHERE grv_study_id = ?";
         }
         $sql .= " ORDER BY grv_value_label;";
-
+        
         return $this->_getSelectPairsCached(__FUNCTION__, $sql, $studyId, ['randomvalues']);
     }
 }

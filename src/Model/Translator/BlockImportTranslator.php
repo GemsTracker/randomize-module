@@ -43,11 +43,16 @@ class BlockImportTranslator extends \MUtil_Model_ModelTranslatorAbstract
     protected $_valueIds;
 
     /**
+     * @var \Zend_Cache_Core
+     */
+    protected $cache;
+
+    /**
      *
      * @var \Zend_Db_Adapter_Abstract
      */
     protected $db;
-
+    
     /**
      *
      * @var \Gems_loader
@@ -93,7 +98,7 @@ class BlockImportTranslator extends \MUtil_Model_ModelTranslatorAbstract
             $validator = $element->getValidator('InArray');
             if ($validator instanceof \Zend_Validate_InArray) {
                 $haystack   = $validator->getHaystack();
-                $haystack[] = $index; // Validator contains only keus
+                $haystack[] = $index; // Validator contains only choice
                 $validator->setHaystack($haystack);
             }
         }
@@ -124,7 +129,7 @@ class BlockImportTranslator extends \MUtil_Model_ModelTranslatorAbstract
     /**
      * Set the target model, where the data is going to.
      *
-     * @param \MUtil_Model_ModelAbstract $sourceModel The target of the data
+     * @param \MUtil_Model_ModelAbstract $targetModel The target of the data
      * @return \MUtil_Model_ModelTranslatorAbstract (continuation pattern)
      */
     public function setTargetModel(\MUtil_Model_ModelAbstract $targetModel)
@@ -142,7 +147,7 @@ class BlockImportTranslator extends \MUtil_Model_ModelTranslatorAbstract
      * Perform any translations necessary for the code to work
      *
      * @param mixed $row array or \Traversable row
-     * @param scalar $key
+     * @param mixed $key
      * @return mixed Row array or false when errors occurred
      */
     public function translateRowValues($row, $key)
@@ -161,6 +166,7 @@ class BlockImportTranslator extends \MUtil_Model_ModelTranslatorAbstract
 
             $this->_studyIds[$sResult['grs_study_id']] = $study;
             $this->addMultiOption('grb_study_id', $sResult['grs_study_id'], $study);
+            $this->cache->clean(\Zend_Cache::CLEANING_MODE_MATCHING_ANY_TAG, ['randomstudies']);
 
             $row['study'] = $sResult['grs_study_id'];
         }
@@ -213,6 +219,7 @@ class BlockImportTranslator extends \MUtil_Model_ModelTranslatorAbstract
 
             $this->_valueIds[$vResult['grv_value_id']] = $val;
             $this->addMultiOption('grb_value_id', $vResult['grv_value_id'], $val);
+            $this->cache->clean(\Zend_Cache::CLEANING_MODE_MATCHING_ANY_TAG, ['randomvalues']);
         }
 
         $row = parent::translateRowValues($row, $key);
