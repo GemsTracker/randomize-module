@@ -156,14 +156,18 @@ class BlockImportTranslator extends \MUtil_Model_ModelTranslatorAbstract
         // Create study if new
         if ($study && (! (isset($this->_studyIds[$study]) || in_array($study, $this->_studyIds)))) {
             $sModel  = $this->randomUtil->createStudyModel(true, 'create');
-            $sValues = [
-                'grs_study_name' => $study,
-                'grs_active'     => 1,
+            $sResult = $sModel->load(['grs_study_name' => $study]);
+            
+            if (! $sResult) {
+                $sValues = [
+                    'grs_study_name' => $study,
+                    'grs_active' => 1,
                 ];
 
-            $sResult = $sModel->save($sValues);
-            // \MUtil_Echo::track($sResult, $this->_studyIds);
-
+                $sResult = $sModel->save($sValues);
+                // \MUtil_Echo::track($sResult, $this->_studyIds);
+            }
+            
             $this->_studyIds[$sResult['grs_study_id']] = $study;
             $this->addMultiOption('grb_study_id', $sResult['grs_study_id'], $study);
             $this->cache->clean(\Zend_Cache::CLEANING_MODE_MATCHING_ANY_TAG, ['randomstudies']);
@@ -181,14 +185,18 @@ class BlockImportTranslator extends \MUtil_Model_ModelTranslatorAbstract
 
             // \MUtil_Echo::track($classes);
             $cModel  = $this->loader->getModels()->getConditionModel();
-            $cValues = [
-                'gcon_type'   => Conditions::TRACK_CONDITION,
-                'gcon_class'  => key($classes),
-                'gcon_name'   => $cond,
-                'gcon_active' => 0,
-            ];
-
-            $cResult = $cModel->save($cValues);
+            $cResult = $cModel->load(['gcon_type' => Conditions::TRACK_CONDITION, 'gcon_name'   => $cond]);
+            
+            if (! $cResult) {
+                $cValues = [
+                    'gcon_type'   => Conditions::TRACK_CONDITION,
+                    'gcon_class'  => key($classes),
+                    'gcon_name'   => $cond,
+                    'gcon_active' => 0,
+                ];
+    
+                $cResult = $cModel->save($cValues);
+            }
 
             $this->_conditionIds[$cResult['gcon_id']] = $cond;
             $this->addMultiOption('grb_condition', $cResult['gcon_id'], $cond);
@@ -208,15 +216,19 @@ class BlockImportTranslator extends \MUtil_Model_ModelTranslatorAbstract
         // Create value if new
         if ($val && (! (isset($this->_valueIds[$val]) || in_array($val, $this->_valueIds)))) {
             $vModel  = $this->randomUtil->createValueModel(true, 'create');
-            $vValues = [
-                'grv_study_id'    => $studyId,
-                'grv_value'       => $val,
-                'grv_value_label' => $val,
-            ];
+            $vResult = $vModel->load(['grv_study_id' => $studyId, 'grv_value_label' => $val]);
+            
+            if (! $vResult) {
+                $vValues = [
+                    'grv_study_id' => $studyId,
+                    'grv_value' => $val,
+                    'grv_value_label' => $val,
+                ];
 
-            $vResult = $vModel->save($vValues);
-            // \MUtil_Echo::track($vResult, $vValues);
-
+                $vResult = $vModel->save($vValues);
+                // \MUtil_Echo::track($vResult, $vValues);
+            }
+            
             $this->_valueIds[$vResult['grv_value_id']] = $val;
             $this->addMultiOption('grb_value_id', $vResult['grv_value_id'], $val);
             $this->cache->clean(\Zend_Cache::CLEANING_MODE_MATCHING_ANY_TAG, ['randomvalues']);
