@@ -12,7 +12,7 @@
     "minimum-stability": "dev",
     "require": {
         "php": ">=7.0",
-        "gemstracker/gemstracker": ">=1.8.7 || dev-r1.9.0 || dev-master"
+        "gemstracker/gemstracker": ">=1.8.7 || dev-r1.9.0 || dev-r1.9.1 || dev-master"
     },
     "autoload": {
         "psr-4": {
