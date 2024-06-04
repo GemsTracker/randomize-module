@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  *
  * @package    GemsRandomizer
@@ -9,8 +11,10 @@
  * @license    New BSD License
  */
 
-use GemsRandomizer\Controller\RandomizationControllerAbstract;
-use GemsRandomizer\Model\RandomizationValueModel;
+namespace GemsRandomizer\Handlers;
+
+use Zalt\Model\MetaModellerInterface;
+use Zalt\SnippetsActions\SnippetActionInterface;
 
 /**
  *
@@ -19,7 +23,7 @@ use GemsRandomizer\Model\RandomizationValueModel;
  * @license    New BSD License
  * @since      Class available since version 1.8.8
  */
-class RandomizationValueController extends RandomizationControllerAbstract
+class RandomizationValueHandler extends RandomizationHandlerAbstract
 {
     /**
      * The parameters used for the autofilter action.
@@ -43,7 +47,7 @@ class RandomizationValueController extends RandomizationControllerAbstract
      *
      * @var array
      */
-    public $cacheTags = ['randomvalues'];
+    public array $cacheTags = ['randomvalues'];
 
     /**
      * Model level parameters used for all actions, overruled by any values set in any other
@@ -66,13 +70,21 @@ class RandomizationValueController extends RandomizationControllerAbstract
     {
         return $this->randomUtil->createValueModel($detailed, $action);
     }
-    
+
+    protected function getModel(SnippetActionInterface $action): MetaModellerInterface
+    {
+        if (!$this->model) {
+            $this->model = $this->createModel(false, $action);
+        }
+        return $this->model;
+    }
+
     /**
      * Helper function to get the title for the index action.
      *
-     * @return $string
+     * @return string
      */
-    public function getIndexTitle()
+    public function getIndexTitle(): string
     {
         return $this->_('Randomization values');
     }
@@ -81,9 +93,9 @@ class RandomizationValueController extends RandomizationControllerAbstract
      * Helper function to allow generalized statements about the items in the model.
      *
      * @param int $count
-     * @return $string
+     * @return string
      */
-    public function getTopic($count = 1)
+    public function getTopic($count = 1): string
     {
         return $this->plural('randomization value', 'randomization values', $count);
     }

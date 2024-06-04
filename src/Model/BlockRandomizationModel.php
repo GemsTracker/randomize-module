@@ -14,10 +14,17 @@ namespace GemsRandomizer\Model;
 use Gems\Condition\ConditionLoader;
 
 use Gems\Model\JoinModel;
+use Gems\Repository\StaffRepository;
+use Gems\SnippetsActions\Form\CreateAction;
+use Gems\Util\Translated;
 use GemsRandomizer\Model\Dependency\StudyValueDependency;
 use GemsRandomizer\Model\Dependency\UseCountDependency;
+use GemsRandomizer\Util\RandomUtil;
 use Laminas\Filter\Digits;
-use Laminas\Filter\ToInt;
+use Laminas\Validator\Digits as DigitsValidator;
+use Zalt\Base\TranslatorInterface;
+use Zalt\Model\Type\ActivatingYesNoType;
+use Zalt\SnippetsActions\SnippetActionInterface;
 
 /**
  *
@@ -28,29 +35,22 @@ use Laminas\Filter\ToInt;
 class BlockRandomizationModel extends JoinModel
 {
     /**
-     * @var \Gems\Loader
-     */
-    protected $loader;
-
-    /**
-     * @var \GemsRandomizer\Util\RandomUtil
-     */
-    protected $randomUtil;
-
-    /**
-     * @var \Gems\Util
-     */
-    protected $util;
-
-    /**
      * Create a model that joins two or more tables
      */
-    public function __construct()
+    public function __construct(
+        protected readonly Translated $translatedUtil,
+        protected readonly ConditionLoader $conditionLoader,
+        protected readonly StaffRepository $staffRepository,
+        protected readonly RandomUtil $randomUtil,
+        TranslatorInterface $translate,
+    )
     {
         parent::__construct('gemsrnd__randomization_blocks', 'gemsrnd__randomization_blocks', 'grb', true);
 
         $this->addColumn(new \Zend_Db_Expr("CASE WHEN grb_active = 1 THEN '' ELSE 'DELETED' END"), 'row_class');
         $this->setDeleteValues(['grb_active' => 0]);
+
+        $this->translate = $translate;
     }
 
     /**
@@ -61,10 +61,10 @@ class BlockRandomizationModel extends JoinModel
      * and summarized actions.
      *
      * @param boolean $detailed True when the current action is not in $summarizedActions.
-     * @param string $action The current action.
+     * @param SnippetActionInterface $action The current action.
      * @return BlockRandomizationModel
      */
-    public function applySettings($detailed, $action)
+    public function applySettings(bool $detailed, SnippetActionInterface $action)
     {
         if (! $detailed) {
             $this->addLeftTable('gems__conditions', ['grb_condition' => 'gcon_id'], 'grb', false);
@@ -76,35 +76,21 @@ class BlockRandomizationModel extends JoinModel
             $this->copyKeys();
         }
 
-        if ($detailed) {
-            $this->set('grb_study_id', [
-                'label' => $this->_('Study name'),
-                'description' => $this->_('The study name is used to group blocks.'),
-                'import_descr' => $this->_('The study name is used to group blocks.'),
-                'multiOptions' => $this->randomUtil->getRandomStudies(),
-            ]);
-        } else {
-            $this->set('grs_study_name', [
-                'label' => $this->_('Study name'),
-                'description' => $this->_('The study name is used to group blocks.'),
-            ]);
-        }
+        $this->set('grb_study_id', [
+            'label' => $this->_('Study name'),
+            'description' => $this->_('The study name is used to group blocks.'),
+            'import_descr' => $this->_('The study name is used to group blocks.'),
+            'multiOptions' => $this->randomUtil->getRandomStudies(),
+        ]);
 
         $this->set('grb_condition', [
-            'multiOptions' => $this->loader->getConditions()->getConditionsFor(ConditionLoader::TRACK_CONDITION, false),
+            'multiOptions' => $this->conditionLoader->getConditionsFor(ConditionLoader::TRACK_CONDITION, false),
         ]);
-        if ($detailed) {
-            $this->set('grb_condition', [
-                'label' => $this->_('Stratum / condition'),
-                'description' => $this->_('A stratum is a track level condition.'),
-                'import_descr' => $this->_('A stratum is a track level condition.') . ' ' . $this->_('If it does not exist it will be created as an inactive condition.'),
-            ]);
-        } else {
-            $this->set('gcon_name', [
-                'label' => $this->_('Stratum / condition'),
-                'description', $this->_('A stratum is a track level condition.') . ' ' . $this->_('See Track builder: Conditions.'),
-            ]);
-        }
+        $this->set('grb_condition', [
+            'label' => $this->_('Stratum / condition'),
+            'description' => $this->_('A stratum is a track level condition.'),
+            'import_descr' => $this->_('A stratum is a track level condition.') . ' ' . $this->_('If it does not exist it will be created as an inactive condition.'),
+        ]);
 
         $this->set('grb_block_id', [
             'label' => $this->_('Assignment id'),
@@ -118,7 +104,7 @@ class BlockRandomizationModel extends JoinModel
             'description' => $this->_('The order of use within a study, leave empty to add to end of stack.'),
             'import_descr' => $this->_('The order of use within a study, leave empty to add by order of import.'),
             'required' => false,
-            'validators[int]' => ToInt::class,
+            'validators[int]' => DigitsValidator::class,
             'validators[unique]' => $this->createUniqueValidator(['grb_value_order', 'grb_study_id'], ['grb_block_id']),
         ]);
 
@@ -141,8 +127,7 @@ class BlockRandomizationModel extends JoinModel
 
         $this->set('grb_active', [
             'label' => $this->_('Active'),
-            'elementClass' => 'Checkbox',
-            'multiOptions' => $this->util->getTranslated()->getYesNo(),
+            'type' => new ActivatingYesNoType($this->translatedUtil->getYesNo(), 'row_class'),
         ]);
 
         $this->set('grb_use_count', [
@@ -156,22 +141,22 @@ class BlockRandomizationModel extends JoinModel
            'filters[digits]' => Digits::class,
         ]);
 
-        $elementClass = ($action == 'create' ? 'None' : 'Exhibitor');
+        $elementClass = ($action instanceOf CreateAction ? 'None' : 'Exhibitor');
         $this->set('grb_changed', [
             'label' => $this->_('Changed on'),
             'elementClass' => $elementClass,
-            'formatFunction' => [$this->util->getTranslated(), 'formatDateTime'],
+            'formatFunction' => [$this->translatedUtil, 'formatDateTime'],
         ]);
         $this->set('grb_changed_by', [
             'label' => $this->_('Changed by'),
             'elementClass' => $elementClass,
-            'multiOptions' => $this->util->getDbLookup()->getStaff(),
+            'multiOptions' => $this->staffRepository->getStaff(),
         ]);
 
-        if ($detailed) {
+        //if ($detailed) {
             $this->addDependency(new StudyValueDependency($this->translate, $this->randomUtil));
             $this->addDependency(new UseCountDependency($this->translate));
-        }
+        //}
 
         return $this;
     }

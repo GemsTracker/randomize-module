@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  *
  * @package    GemsRandomizer
@@ -9,7 +11,17 @@
  * @license    New BSD License
  */
 
-use Gems\Conditions;
+namespace GemsRandomizer\Handlers;
+
+use Gems\Condition\ConditionLoader;
+use Gems\Handlers\TrackBuilder\ConditionHandler;
+use Gems\Model\ConditionModel;
+use Gems\Snippets\Condition\ConditionAndOrTableSnippet;
+use Gems\Snippets\Generic\ContentTitleSnippet;
+use Gems\Snippets\Generic\CurrentButtonRowSnippet;
+use Gems\Snippets\ModelDetailTableSnippet;
+use Gems\Snippets\ModelFormSnippet;
+use GemsRandomizer\Snippets\Randomizer\AddRandomizerInformation;
 
 /**
  *
@@ -18,14 +30,17 @@ use Gems\Conditions;
  * @license    New BSD License
  * @since      Class available since version 1.8.8
  */
-class RandomizationStrataController extends \Gems_Default_ConditionAction
+class RandomizationStrataHandler extends ConditionHandler
 {
     /**
      * The snippets used for the create and edit actions.
      *
-     * @var mixed String or array of snippets name
+     * @var array String or array of snippets name
      */
-    protected $createEditSnippets = ['ModelFormSnippetGeneric', 'Randomizer\\AddRandomizerInformation'];
+    protected array $createEditSnippets = [
+        ModelFormSnippet::class,
+        AddRandomizerInformation::class,
+    ];
 
     /**
      * Model level parameters used for all actions, overruled by any values set in any other
@@ -39,39 +54,26 @@ class RandomizationStrataController extends \Gems_Default_ConditionAction
      *
      * @var array Mixed key => value array for snippet initialization
      */
-    protected $defaultParameters = ['randomizationStep' => 'strata'];
+    protected array $defaultParameters = ['randomizationStep' => 'strata'];
 
     /**
      * The default search data to use.
      *
      * @var array()
      */
-    protected $defaultSearchData = ['gcon_type' => Conditions::TRACK_CONDITION];
-    
-    /**
-     * The snippets used for the delete action.
-     *
-     * @var mixed String or array of snippets name
-     */
-    protected $deleteSnippets = ['ConditionDeleteSnippet', 'Randomizer\\AddRandomizerInformation'];
-
-    /**
-     * The snippets used for the index action, after those in autofilter
-     *
-     * @var mixed String or array of snippets name
-     */
-    protected $indexStopSnippets = ['Generic\\CurrentSiblingsButtonRowSnippet', 'Randomizer\\AddRandomizerInformation'];
+    protected array $defaultSearchData = ['gcon_type' => ConditionLoader::TRACK_CONDITION];
 
     /**
      * The snippets used for the show action
      *
-     * @var mixed String or array of snippets name
+     * @var array String or array of snippets name
      */
-    protected $showSnippets = [
-        'Generic\\ContentTitleSnippet',
-        'ModelItemTableSnippetGeneric',
-        'ConditionAndOrTableSnippet',
-        'Randomizer\\AddRandomizerInformation'
+    protected array $showSnippets = [
+        ContentTitleSnippet::class,
+        ModelDetailTableSnippet::class,
+        CurrentButtonRowSnippet::class,
+        ConditionAndOrTableSnippet::class,
+        AddRandomizerInformation::class,
     ];
 
     /**
@@ -83,15 +85,15 @@ class RandomizationStrataController extends \Gems_Default_ConditionAction
      *
      * @param boolean $detailed True when the current action is not in $summarizedActions.
      * @param string $action The current action.
-     * @return \MUtil_Model_ModelAbstract
+     * @return ConditionModel
      */
-    protected function createModel($detailed, $action)
+    protected function createModel(bool $detailed, string $action): ConditionModel
     {
         $model = parent::createModel($detailed, $action);
         
-        $options = $model->get('gcon_type', 'multiOptions');
-        $option[Conditions::TRACK_CONDITION] = $options[Conditions::TRACK_CONDITION];
-        $model->set('gcon_type', 'multiOptions', $option, 'default', Conditions::TRACK_CONDITION);
+        $options = $model->getMetamodel()->get('gcon_type', 'multiOptions');
+        $option[ConditionLoader::TRACK_CONDITION] = $options[ConditionLoader::TRACK_CONDITION];
+        $model->getMetaModel()->set('gcon_type', 'multiOptions', $option, 'default', ConditionLoader::TRACK_CONDITION);
         
         return $model;
     }
@@ -99,9 +101,9 @@ class RandomizationStrataController extends \Gems_Default_ConditionAction
     /**
      * Helper function to get the title for the index action.
      *
-     * @return $string
+     * @return string
      */
-    public function getIndexTitle()
+    public function getIndexTitle(): string
     {
         return $this->_('Strata');
     }
@@ -110,9 +112,9 @@ class RandomizationStrataController extends \Gems_Default_ConditionAction
      * Helper function to allow generalized statements about the items in the model.
      *
      * @param int $count
-     * @return $string
+     * @return string
      */
-    public function getTopic($count = 1)
+    public function getTopic($count = 1): string
     {
         return $this->plural('stratum', 'strata', $count);
     }

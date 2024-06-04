@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  *
  * @package    GemsRandomizer
@@ -9,8 +11,12 @@
  * @license    New BSD License
  */
 
-use GemsRandomizer\Controller\RandomizationControllerAbstract;
+namespace GemsRandomizer\Handlers;
+
 use GemsRandomizer\Model\RandomizationStudyModel;
+use GemsRandomizer\Snippets\Randomizer\ResetStudyFormSnippet;
+use Zalt\Model\MetaModellerInterface;
+use Zalt\SnippetsActions\SnippetActionInterface;
 
 /**
  *
@@ -19,7 +25,7 @@ use GemsRandomizer\Model\RandomizationStudyModel;
  * @license    New BSD License
  * @since      Class available since version 1.8.8
  */
-class RandomizationStudyController extends RandomizationControllerAbstract
+class RandomizationStudyHandler extends RandomizationHandlerAbstract
 {
     /**
      * The parameters used for the autofilter action.
@@ -42,7 +48,7 @@ class RandomizationStudyController extends RandomizationControllerAbstract
      *
      * @var array
      */
-    public $cacheTags = ['randomstudies'];
+    public array $cacheTags = ['randomstudies'];
 
     /**
      * Model level parameters used for all actions, overruled by any values set in any other
@@ -75,7 +81,7 @@ class RandomizationStudyController extends RandomizationControllerAbstract
      *
      * @var mixed String or array of snippets name
      */
-    protected $resetSnippets = ['Randomizer\\ResetStudyFormSnippet'];
+    protected $resetSnippets = [ResetStudyFormSnippet::class];
 
     /**
      * Creates a model for getModel(). Called only for each new $action.
@@ -85,20 +91,28 @@ class RandomizationStudyController extends RandomizationControllerAbstract
      * and summarized actions.
      *
      * @param boolean $detailed True when the current action is not in $summarizedActions.
-     * @param string $action The current action.
-     * @return \MUtil_Model_ModelAbstract
+     * @param SnippetActionInterface $action The current action.
+     * @return RandomizationStudyModel
      */
-    protected function createModel($detailed, $action)
+    protected function createModel(bool $detailed, SnippetActionInterface $action): RandomizationStudyModel
     {
         return $this->randomUtil->createStudyModel($detailed, $action);
     }
-    
+
+    protected function getModel(SnippetActionInterface $action): MetaModellerInterface
+    {
+        if (!$this->model) {
+            $this->model = $this->createModel(false, $action);
+        }
+        return $this->model;
+    }
+
     /**
      * Helper function to get the title for the index action.
      *
-     * @return $string
+     * @return string
      */
-    public function getIndexTitle()
+    public function getIndexTitle(): string
     {
         return $this->_('Randomization studies');
     }
@@ -107,19 +121,10 @@ class RandomizationStudyController extends RandomizationControllerAbstract
      * Helper function to allow generalized statements about the items in the model.
      *
      * @param int $count
-     * @return $string
+     * @return string
      */
-    public function getTopic($count = 1)
+    public function getTopic($count = 1): string
     {
         return $this->plural('randomization study', 'randomization studies', $count);
-    }
-    
-    public function resetAction()
-    {
-        if ($this->resetSnippets) {
-            $params = $this->_processParameters($this->resetParameters);
-
-            $this->addSnippets($this->resetSnippets, $params);
-        }
     }
 }

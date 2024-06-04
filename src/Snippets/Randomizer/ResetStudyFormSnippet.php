@@ -11,7 +11,18 @@
 
 namespace GemsRandomizer\Snippets\Randomizer;
 
+use Gems\Audit\AuditLog;
+use Gems\Db\ResultFetcher;
+use Gems\Menu\MenuSnippetHelper;
+use Gems\Model;
 use Gems\Snippets\FormSnippetAbstract;
+use GemsRandomizer\Util\RandomUtil;
+use Laminas\Db\Sql\Select;
+use Laminas\Db\Sql\Where;
+use Zalt\Base\RequestInfo;
+use Zalt\Base\TranslatorInterface;
+use Zalt\Message\MessengerInterface;
+use Zalt\SnippetsLoader\SnippetOptions;
 
 /**
  *
@@ -23,20 +34,23 @@ use Gems\Snippets\FormSnippetAbstract;
 class ResetStudyFormSnippet extends FormSnippetAbstract
 {
     /**
-     * @var \Zend_Db_Adapter_Abstract
-     */
-    protected $db;
-    
-    /**
-     * @var \GemsRandomizer\Util\RandomUtil
-     */
-    protected $randomUtil;
-
-    /**
      * @var int|false The study id or false if none exists 
      */
     protected $studyId = false;
-    
+
+    public function __construct(
+        SnippetOptions $snippetOptions,
+        RequestInfo $requestInfo,
+        TranslatorInterface $translate,
+        MessengerInterface $messenger,
+        AuditLog $auditLog,
+        MenuSnippetHelper $menuHelper,
+        protected readonly ResultFetcher $resultFetcher,
+        protected readonly RandomUtil $randomUtil,
+    )
+    {
+        parent::__construct($snippetOptions, $requestInfo, $translate, $messenger, $auditLog, $menuHelper);
+    }
     /**
      * @inheritDoc
      */
@@ -79,25 +93,21 @@ class ResetStudyFormSnippet extends FormSnippetAbstract
         if (! $this->studyId) {
             return 0;
         }
-        
-        $sql1  = "UPDATE gems__respondent2track2field
-                    SET gr2t2f_value = null
-                    WHERE gr2t2f_id_field IN (
-                        SELECT gtf_id_field FROM gems__track_fields WHERE gtf_field_type = 'randomization' AND gtf_calculate_using = ?
-                    );";
-        $stmt1 = $this->db->query($sql1, [$this->studyId]);
-        $fieldCount = $stmt1->rowCount();
-        
-        $sql2  = "UPDATE gemsrnd__randomization_blocks SET grb_use_count = 0 WHERE grb_study_id = ?";
-        $stmt2 = $this->db->query($sql2, [$this->studyId]);
-        $assignCount = $stmt2->rowCount();
+
+        $subQuery = new Select();
+        $subQuery->from('gems__track_fields')->columns(['gtf_id_field'])->where(['gtf_field_type' => 'randomization', 'gtf_calculate_using' => $this->studyId]);
+        $where = new Where();
+        $where->in('gr2t2f_id_field', $subQuery);
+        $fieldCount = $this->resultFetcher->updateTable('gems__respondent2track2field', ['gr2t2f_value' => null], $where);
+
+        $assignCount = $this->resultFetcher->updateTable('gemsrnd__randomization_blocks', ['grb_use_count' => 0], ['grb_study_id' => $this->studyId]);
         
         $this->addMessage(sprintf($this->_('Reset all randomization values for study %s.'), $studyName));
         $this->addMessage(sprintf($this->_('Reset %d assignment(s) and %d track field(s).'), $assignCount, $fieldCount));
         
         return 1;        
     }
-    
+
     /**
      * Set what to do when the form is 'finished'.
      *
@@ -118,7 +128,7 @@ class ResetStudyFormSnippet extends FormSnippetAbstract
             $this->afterSaveRouteUrl = $params + array(
                     $this->request->getControllerKey() => $controllerName,
                     $this->request->getActionKey() => $this->routeAction,
-                    \MUtil_Model::REQUEST_ID => $this->studyId,
+                    Model::REQUEST_ID => $this->studyId,
                     'RouteReset' => true,
                 );
         }

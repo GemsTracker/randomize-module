@@ -11,7 +11,13 @@
 
 namespace GemsRandomizer\Model\Translator;
 
+use Gems\Condition\ConditionLoader;
 use Gems\Conditions;
+use Gems\Form;
+use Zalt\Base\TranslatorInterface;
+use Zalt\Model\Data\DataWriterInterface;
+use Zalt\Model\Translator\ModelTranslatorAbstract;
+use Zalt\Model\Translator\ModelTranslatorInterface;
 
 /**
  *
@@ -20,7 +26,7 @@ use Gems\Conditions;
  * @license    No free license, do not copy
  * @since      Class available since version 1.8.8
  */
-class BlockImportTranslator extends \MUtil_Model_ModelTranslatorAbstract
+class BlockImportTranslator extends ModelTranslatorAbstract
 {
     /**
      * @var array cond id => row
@@ -55,7 +61,7 @@ class BlockImportTranslator extends \MUtil_Model_ModelTranslatorAbstract
     
     /**
      *
-     * @var \Gems_loader
+     * @var \Gems\Loader
      */
     protected $loader;
 
@@ -63,15 +69,23 @@ class BlockImportTranslator extends \MUtil_Model_ModelTranslatorAbstract
      * @var \GemsRandomizer\Util\RandomUtil
      */
     protected $randomUtil;
+
+    public function __construct(
+        TranslatorInterface $translator,
+        protected readonly ConditionLoader $conditionLoader,
+    )
+    {
+        parent::__construct($translator);
+    }
     
     /**
      * Create an empty form for filtering and validation
      *
-     * @return \MUtil_Form
+     * @return Form
      */
     protected function _createTargetForm()
     {
-        return new \Gems_Form();
+        return new Form();
     }
 
     /**
@@ -108,9 +122,8 @@ class BlockImportTranslator extends \MUtil_Model_ModelTranslatorAbstract
      * Get information on the field translations
      *
      * @return array of fields sourceName => targetName
-     * @throws \MUtil_Model_ModelException
      */
-    public function getFieldsTranslations()
+    public function getFieldsTranslations(): array
     {
         return [
             'study'       => 'grb_study_id',
@@ -123,16 +136,16 @@ class BlockImportTranslator extends \MUtil_Model_ModelTranslatorAbstract
             'active'      => 'grb_active',
             'use_count'   => 'grb_use_count',
             'use_max'     => 'grb_use_max',
-            ];
+        ];
     }
 
     /**
      * Set the target model, where the data is going to.
      *
-     * @param \MUtil_Model_ModelAbstract $targetModel The target of the data
-     * @return \MUtil_Model_ModelTranslatorAbstract (continuation pattern)
+     * @param DataWriterInterface $targetModel The target of the data
+     * @return ModelTranslatorInterface (continuation pattern)
      */
-    public function setTargetModel(\MUtil_Model_ModelAbstract $targetModel)
+    public function setTargetModel(DataWriterInterface $targetModel): ModelTranslatorInterface
     {
         $this->_conditionIds = $targetModel->get('grb_condition', 'multiOptions');
         $this->_studyIds     = $targetModel->get('grb_study_id', 'multiOptions');
@@ -179,17 +192,17 @@ class BlockImportTranslator extends \MUtil_Model_ModelTranslatorAbstract
         $cond = $row['stratum'];
         // Create condition if new
         if ($cond && (! (isset($this->_conditionIds[$cond]) || in_array($cond, $this->_conditionIds)))) {
-            $classes = $this->loader->getConditions()->listConditionsForType(Conditions::TRACK_CONDITION);
+            $classes = $this->conditionLoader->listConditionsForType(ConditionLoader::TRACK_CONDITION);
             unset($classes[""]);
             reset($classes);
 
             // \MUtil_Echo::track($classes);
             $cModel  = $this->loader->getModels()->getConditionModel();
-            $cResult = $cModel->load(['gcon_type' => Conditions::TRACK_CONDITION, 'gcon_name'   => $cond]);
+            $cResult = $cModel->load(['gcon_type' => ConditionLoader::TRACK_CONDITION, 'gcon_name'   => $cond]);
             
             if (! $cResult) {
                 $cValues = [
-                    'gcon_type'   => Conditions::TRACK_CONDITION,
+                    'gcon_type'   => ConditionLoader::TRACK_CONDITION,
                     'gcon_class'  => key($classes),
                     'gcon_name'   => $cond,
                     'gcon_active' => 0,

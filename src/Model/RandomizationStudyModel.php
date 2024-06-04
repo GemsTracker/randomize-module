@@ -12,6 +12,11 @@
 namespace GemsRandomizer\Model;
 
 use Gems\Model\JoinModel;
+use Gems\SnippetsActions\Form\CreateAction;
+use Gems\Util\Translated;
+use Zalt\Base\TranslatorInterface;
+use Zalt\Model\Type\ActivatingYesNoType;
+use Zalt\SnippetsActions\SnippetActionInterface;
 
 /**
  *
@@ -23,16 +28,16 @@ use Gems\Model\JoinModel;
 class RandomizationStudyModel extends JoinModel
 {
     /**
-     * @var \Gems\Util
-     */
-    protected $util;
-    
-    /**
      * Create a model that joins two or more tables
      */
-    public function __construct()
+    public function __construct(
+        protected readonly Translated $translatedUtil,
+        TranslatorInterface $translate,
+    )
     {
         parent::__construct('gemsrnd__randomization_studies', 'gemsrnd__randomization_studies', 'grs', true);
+
+        $this->translate = $translate;
 
         $this->addColumn(new \Zend_Db_Expr("CASE WHEN grs_active = 1 THEN '' ELSE 'DELETED' END"), 'row_class');
         $this->setDeleteValues(['grs_active' => 0]);
@@ -46,10 +51,10 @@ class RandomizationStudyModel extends JoinModel
      * and summarized actions.
      *
      * @param boolean $detailed True when the current action is not in $summarizedActions.
-     * @param string $action The current action.
+     * @param SnippetActionInterface $action The current action.
      * @return RandomizationStudyModel
      */
-    public function applySettings($detailed, $action)
+    public function applySettings(bool $detailed, SnippetActionInterface $action): self
     {
         $this->set('grs_study_name', [
             'label' => $this->_('Study name'),
@@ -59,11 +64,10 @@ class RandomizationStudyModel extends JoinModel
         ]);
         $this->set('grs_active', [
             'label' => $this->_('Active'),
-            'elementClass' => 'Checkbox',
-            'multiOptions' => $this->util->getTranslated()->getYesNo(),
+            'type' => new ActivatingYesNoType($this->translatedUtil->getYesNo(), 'row_class'),
         ]);
 
-        if (($action !== 'create') && ($action !== 'import')) {
+        if (! $action instanceOf CreateAction) {
             // SUM columns
             $sql = "(SELECT COALESCE(SUM(%s), 0)  
                         FROM gemsrnd__randomization_blocks

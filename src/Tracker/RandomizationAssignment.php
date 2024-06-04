@@ -11,6 +11,8 @@
 
 namespace GemsRandomizer\Tracker;
 
+use Gems\Db\ResultFetcher;
+
 /**
  *
  * @package    GemsRandomizer
@@ -24,35 +26,29 @@ class RandomizationAssignment
      *
      * @var string The block id
      */
-    protected $_blockId;
+    protected string $_blockId;
     
     /**
      *
      * @var array The gems token data
      */
-    protected $_gemsData = array();
-
-    /**
-     *
-     * @var \Zend_Db_Adapter_Abstract
-     */
-    protected $db;
+    protected array $_gemsData = [];
 
     /**
      * @var bool 
      */
-    public $exists = false;
+    public bool $exists = false;
     
     /**
      * RandomizationAssignment constructor.
      *
      * @param array|string $blockData
-     * @param \Zend_Db_Adapter_Abstract $db
+     * @param ResultFetcher $resultFetcher
      */
-    public function __construct($blockData, \Zend_Db_Adapter_Abstract $db)
+    public function __construct(
+        array|string $blockData,
+        protected readonly ResultFetcher $resultFetcher)
     {
-        $this->db = $db;
-        
         if (is_array($blockData)) {
             $this->_gemsData = $blockData;
             if (isset($blockData['grb_block_id'])) {
@@ -68,7 +64,7 @@ class RandomizationAssignment
     /**
      * @return string
      */
-    public function getBlockId()
+    public function getBlockId(): string
     {
         return $this->_blockId;
     }
@@ -76,7 +72,7 @@ class RandomizationAssignment
     /**
      * @return string
      */
-    public function getValueLabel()
+    public function getValueLabel(): string
     {
         return $this->_gemsData['grv_value_label'];
     }
@@ -84,14 +80,14 @@ class RandomizationAssignment
     /**
      * @return $this
      */
-    public function refresh()
+    public function refresh(): self
     {
-        $select = $this->db->select();
+        $select = $this->resultFetcher->getSelect();
         $select->from('gemsrnd__randomization_blocks')
-            ->joinInner('gemsrnd__randomization_values', 'grb_value_id = grv_value_id')
-            ->where('grb_block_id = ?');
+            ->join('gemsrnd__randomization_values', 'grb_value_id = grv_value_id')
+            ->where(['grb_block_id' =>  $this->_blockId]);
         
-        $this->_gemsData = $this->db->fetchRow($select, $this->_blockId);
+        $this->_gemsData = $this->resultFetcher->fetchRow($select);
         $this->exists    = (boolean) isset($this->_gemsData['grb_block_id']);
         
         return $this;

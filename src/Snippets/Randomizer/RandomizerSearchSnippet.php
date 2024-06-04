@@ -11,7 +11,15 @@
 
 namespace GemsRandomizer\Snippets\Randomizer;
 
+use Gems\Db\ResultFetcher;
+use Gems\Menu\MenuSnippetHelper;
+use Gems\Model\MetaModelLoader;
 use Gems\Snippets\AutosearchFormSnippet;
+use GemsRandomizer\Util\RandomUtil;
+use Zalt\Base\RequestInfo;
+use Zalt\Base\TranslatorInterface;
+use Zalt\Message\StatusMessengerInterface;
+use Zalt\SnippetsLoader\SnippetOptions;
 
 /**
  *
@@ -22,17 +30,19 @@ use Gems\Snippets\AutosearchFormSnippet;
  */
 class RandomizerSearchSnippet extends AutosearchFormSnippet
 {
-    /**
-     *
-     * @var \Gems\Loader
-     */
-    protected $loader;
-
-    /**
-     * @var \GemsRandomizer\Util\RandomUtil
-     */
-    protected $randomUtil;
-
+    public function __construct(
+        SnippetOptions $snippetOptions,
+        RequestInfo $requestInfo,
+        TranslatorInterface $translate,
+        MenuSnippetHelper $menuSnippetHelper,
+        MetaModelLoader $metaModelLoader,
+        ResultFetcher $resultFetcher,
+        StatusMessengerInterface $messenger,
+        protected readonly RandomUtil $randomUtil,
+        )
+    {
+        parent::__construct($snippetOptions, $requestInfo, $translate, $menuSnippetHelper, $metaModelLoader, $resultFetcher, $messenger);
+    }
     /**
      * Returns a text element for autosearch. Can be overruled.
      *
@@ -44,8 +54,6 @@ class RandomizerSearchSnippet extends AutosearchFormSnippet
      */
     protected function getAutoSearchElements(array $data)
     {
-        $conditons = $this->loader->getConditions();
-
         $elements = parent::getAutoSearchElements($data);
 
         $elements['grb_study_id']  = $this->_createSelectElement('grb_study_id',  $this->randomUtil->getRandomStudies(), $this->_('(all studies)'));

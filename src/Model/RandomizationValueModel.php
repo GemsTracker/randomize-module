@@ -12,6 +12,10 @@
 namespace GemsRandomizer\Model;
 
 use Gems\Model\JoinModel;
+use Gems\SnippetsActions\Form\CreateAction;
+use GemsRandomizer\Util\RandomUtil;
+use Zalt\Base\TranslatorInterface;
+use Zalt\SnippetsActions\SnippetActionInterface;
 
 /**
  *
@@ -23,21 +27,16 @@ use Gems\Model\JoinModel;
 class RandomizationValueModel extends JoinModel
 {
     /**
-     * @var \GemsRandomizer\Util\RandomUtil
-     */
-    protected $randomUtil;
-    
-    /**
-     * @var \Gems\Util
-     */
-    protected $util;
-
-    /**
      * Create a model that joins two or more tables
      */
-    public function __construct()
+    public function __construct(
+        protected readonly RandomUtil $randomUtil,
+        TranslatorInterface $translate,
+    )
     {
         parent::__construct('gemsrnd__randomization_values', 'gemsrnd__randomization_values', 'grv', true);
+
+        $this->translate = $translate;
     }
 
     /**
@@ -48,28 +47,21 @@ class RandomizationValueModel extends JoinModel
      * and summarized actions.
      *
      * @param boolean $detailed True when the current action is not in $summarizedActions.
-     * @param string $action The current action.
+     * @param SnippetActionInterface $action The current action.
      * @return RandomizationValueModel
      */
-    public function applySettings($detailed, $action)
+    public function applySettings(bool $detailed, SnippetActionInterface $action): self
     {
         if (! $detailed) {
             $this->addLeftTable('gemsrnd__randomization_studies', ['grv_study_id' => 'grs_study_id'], 'grs', false);
         }
         $this->resetOrder();
 
-        if ($detailed) {
-            $this->set('grv_study_id', [
-                'label' => $this->_('Study name'),
-                'description' => $this->_('The study name is used to group blocks.'),
-                'multiOptions' => $this->randomUtil->getRandomStudies(),
-            ]);
-        } else {
-            $this->set('grs_study_name', [
-                'label' => $this->_('Study name'),
-                'description' => $this->_('The study name is used to group blocks.'),
-            ]);
-        }
+        $this->set('grv_study_id', [
+            'label' => $this->_('Study name'),
+            'description' => $this->_('The study name is used to group blocks.'),
+            'multiOptions' => $this->randomUtil->getRandomStudies(),
+        ]);
         $this->set('grv_value', [
             'label' => $this->_('Randomization export value'),
             'description' => $this->_('The outcome value assigned to a randomization, used for export.'),
@@ -80,7 +72,7 @@ class RandomizationValueModel extends JoinModel
             'description' => $this->_('The outcome label shown in the field.'),
         ]);
 
-        if (($action !== 'create') && ($action !== 'import')) {
+        if (! $action instanceOf CreateAction) {
             // SUM columns
             $sql = "(SELECT COALESCE(SUM(%s), 0)  
                         FROM gemsrnd__randomization_blocks

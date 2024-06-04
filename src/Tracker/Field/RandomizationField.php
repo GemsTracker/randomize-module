@@ -11,9 +11,16 @@
 
 namespace GemsRandomizer\Tracker\Field;
 
+use Gems\Condition\ConditionLoader;
 use Gems\Condition\TrackConditionInterface;
+use Gems\Db\ResultFetcher;
+use Gems\Menu\RouteHelper;
 use Gems\Model;
+use Gems\Tracker;
 use Gems\Tracker\Field\FieldAbstract;
+use Gems\Util\Translated;
+use GemsRandomizer\Util\RandomUtil;
+use Zalt\Base\TranslatorInterface;
 use Zalt\Html\Html;
 
 /**
@@ -29,16 +36,6 @@ class RandomizationField extends FieldAbstract
      * @var \Gems\User\User
      */
     protected $currentUser;
-    
-    /**
-     * @var \Zend_Db_Adapter_Abstract
-     */
-    protected $db;
-
-    /**
-     * @var \Gems\Loader
-     */
-    protected $loader;
 
     /**
      * @var \Gems\Menu\Menu
@@ -46,19 +43,25 @@ class RandomizationField extends FieldAbstract
     protected $menu;
 
     /**
-     * @var \GemsRandomizer\Util\RandomUtil
-     */
-    protected $randomUtil;
-    
-    /**
      * @var \Zend_Controller_Request_Abstract
      */
     protected $request;
 
-    /**
-     * @var \Gems\Tracker
-     */
-    protected $tracker;
+    public function __construct(
+        int $trackId,
+        string $fieldKey,
+        array $fieldDefinition,
+        TranslatorInterface $translator,
+        Translated $translatedUtil,
+        protected readonly ConditionLoader $conditionLoader,
+        protected readonly ResultFetcher $resultFetcher,
+        protected readonly RandomUtil $randomUtil,
+        protected readonly Tracker $tracker,
+        protected readonly RouteHelper $routeHelper,
+    )
+    {
+        parent::__construct($trackId, $fieldKey, $fieldDefinition, $translator, $translatedUtil);
+    }
 
     /**
      * Add the model settings like the elementClass for this field.
@@ -70,7 +73,7 @@ class RandomizationField extends FieldAbstract
     protected function addModelSettings(array &$settings): void
     {
         $settings['elementClass']   = 'Exhibitor';
-        $settings['formatFunction'] = array($this, 'showRandomization');
+        $settings['formatFunction'] = [$this, 'showRandomization'];
     }
 
     /**
@@ -108,7 +111,6 @@ class RandomizationField extends FieldAbstract
             return $currentValue;
         }
 
-        $conditions = $this->loader->getConditions();
         $respTrack  = $this->tracker->getRespondentTrack($trackData['gr2t_id_respondent_track']); // Request on track id, otherwise the data is reloaded from the db
         $study      = $this->fieldDefinition['gtf_calculate_using'];
 
@@ -119,7 +121,7 @@ class RandomizationField extends FieldAbstract
                     ORDER BY MIN(grb_value_order) ASC";
 
         // \MUtil_Echo::track($study, $sql1);
-        $condIds = $this->db->fetchCol($sql1, [$study]);
+        $condIds = $this->resultFetcher->fetchCol($sql1, [$study]);
         // \MUtil_Echo::track(count($condIds));
         if (! $condIds) {
             return null;
@@ -127,7 +129,7 @@ class RandomizationField extends FieldAbstract
 
         $outputCondition = false;
         foreach ($condIds as $condId) {
-            $condition = $conditions->loadCondition($condId);
+            $condition = $this->conditionLoader->loadCondition($condId);
             if ($condition instanceof TrackConditionInterface) {
                 // \MUtil_Echo::track($condition->getName());
                 if ($condition->isTrackValid($respTrack, $fieldData)) {
@@ -136,7 +138,7 @@ class RandomizationField extends FieldAbstract
                 }
             }
         }
-        IF (! $outputCondition) {
+        if (! $outputCondition) {
             return null;
         }
 
@@ -146,15 +148,17 @@ class RandomizationField extends FieldAbstract
                           grb_condition = ? AND grb_study_id = ?
                     ORDER BY grb_value_order";
         // \MUtil_Echo::track($outputCondition, $sql2);
-        $block = $this->db->fetchRow($sql2, [$outputCondition, $study]);
+        $block = $this->resultFetcher->fetchRow($sql2, [$outputCondition, $study]);
 
         if (! $block) {
             return null;
         }
 
-        $this->db->update('gemsrnd__randomization_blocks', ['grb_use_count' => $block['grb_use_count'] + 1], [
-            'grb_block_id = ?' => $block['grb_block_id'],
-            'grb_study_id = ?' => $study
+        $this->resultFetcher->updateTable('gemsrnd__randomization_blocks',
+            ['grb_use_count' => $block['grb_use_count'] + 1],
+            [
+                'grb_block_id = ?' => $block['grb_block_id'],
+                'grb_study_id = ?' => $study,
             ]);
 
         return $block['grb_block_id'];
@@ -168,30 +172,25 @@ class RandomizationField extends FieldAbstract
      */
     public function showRandomization($value)
     {
-        if ($value) {
-            if (! $this->currentUser->hasPrivilege('prr.assignments.seeresult')) {
-                return '******';
-            }
-            $assignment = $this->randomUtil->getRandomAssignment($value);
-
-            if ($assignment && $assignment->exists) {
-                $showItem = $this->menu->findAllowedController('randomization', 'show');
-                if ($showItem) {
-                    if (! $this->request) {
-                        $this->request = \Zend_Controller_Front::getInstance()->getRequest();
-                    }
-                    $href = $showItem->toHRefAttribute(
-                        [Model::REQUEST_ID => $assignment->getBlockId()],
-                        $this->request
-                    );
-                    if ($href) {
-                        return Html::create('a', $href, $assignment->getValueLabel());
-                    }
-                } 
-                return $assignment->getValueLabel();
-            }
+        if (! $value) {
+            return $this->translator->_('Unknown');
+        }
+        if (! $this->currentUser->hasPrivilege('prr.assignments.seeresult')) {
+            return '******';
         }
 
-        return $value;
+        $assignment = $this->randomUtil->getRandomAssignment($value);
+        if (!$assignment || !$assignment->exists) {
+            return $value;
+        }
+
+        $url = $this->routeHelper->getRouteUrl('track-builder.randomization.show', [
+            Model::REQUEST_ID => $assignment->getBlockId(),
+        ]);
+        if ($url) {
+            return Html::create('a', $url, $assignment->getValueLabel());
+        }
+
+        return $assignment->getValueLabel();
     }
 }
