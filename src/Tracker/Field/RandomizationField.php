@@ -12,7 +12,9 @@
 namespace GemsRandomizer\Tracker\Field;
 
 use Gems\Condition\TrackConditionInterface;
+use Gems\Model;
 use Gems\Tracker\Field\FieldAbstract;
+use Zalt\Html\Html;
 
 /**
  *
@@ -65,7 +67,7 @@ class RandomizationField extends FieldAbstract
      *
      * @param array $settings The settings set so far
      */
-    protected function addModelSettings(array &$settings)
+    protected function addModelSettings(array &$settings): void
     {
         $settings['elementClass']   = 'Exhibitor';
         $settings['formatFunction'] = array($this, 'showRandomization');
@@ -101,14 +103,14 @@ class RandomizationField extends FieldAbstract
      */
     public function calculateFieldValue($currentValue, array $fieldData, array $trackData)
     {
-        // \MUtil_Echo::track($this->_fieldDefinition, $fieldData, $trackData);
+        // \MUtil_Echo::track($this->fieldDefinition, $fieldData, $trackData);
         if ($currentValue) {
             return $currentValue;
         }
 
         $conditions = $this->loader->getConditions();
         $respTrack  = $this->tracker->getRespondentTrack($trackData['gr2t_id_respondent_track']); // Request on track id, otherwise the data is reloaded from the db
-        $study      = $this->_fieldDefinition['gtf_calculate_using'];
+        $study      = $this->fieldDefinition['gtf_calculate_using'];
 
         $sql1 = "SELECT grb_condition
                     FROM gemsrnd__randomization_blocks
@@ -179,11 +181,11 @@ class RandomizationField extends FieldAbstract
                         $this->request = \Zend_Controller_Front::getInstance()->getRequest();
                     }
                     $href = $showItem->toHRefAttribute(
-                        [\MUtil_Model::REQUEST_ID => $assignment->getBlockId()],
+                        [Model::REQUEST_ID => $assignment->getBlockId()],
                         $this->request
                     );
                     if ($href) {
-                        return \MUtil_Html::create('a', $href, $assignment->getValueLabel());
+                        return Html::create('a', $href, $assignment->getValueLabel());
                     }
                 } 
                 return $assignment->getValueLabel();

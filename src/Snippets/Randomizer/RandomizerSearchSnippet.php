@@ -11,6 +11,8 @@
 
 namespace GemsRandomizer\Snippets\Randomizer;
 
+use Gems\Snippets\AutosearchFormSnippet;
+
 /**
  *
  * @package    GemsRandomize
@@ -18,7 +20,7 @@ namespace GemsRandomizer\Snippets\Randomizer;
  * @license    No free license, do not copy
  * @since      Class available since version 1.8.8
  */
-class RandomizerSearchSnippet extends \Gems_Snippets_AutosearchFormSnippet
+class RandomizerSearchSnippet extends AutosearchFormSnippet
 {
     /**
      *

@@ -11,6 +11,8 @@
 
 namespace GemsRandomizer\Model;
 
+use Gems\Model\JoinModel;
+
 /**
  *
  * @package    GemsRandomizer
@@ -18,7 +20,7 @@ namespace GemsRandomizer\Model;
  * @license    New BSD License
  * @since      Class available since version 1.8.8
  */
-class RandomizationStudyModel extends \Gems_Model_JoinModel
+class RandomizationStudyModel extends JoinModel
 {
     /**
      * @var \Gems_Util
@@ -49,15 +51,17 @@ class RandomizationStudyModel extends \Gems_Model_JoinModel
      */
     public function applySettings($detailed, $action)
     {
-        $this->set('grs_study_name', 'label', $this->_('Study name'),
-           'description', $this->_('The study name is used to group blocks.'),
-            'required', true,
-            'validators[unique]', $this->createUniqueValidator('grs_study_name')
-        );
-        $this->set('grs_active', 'label', $this->_('Active'),
-                   'elementClass', 'Checkbox',
-                   'multiOptions', $this->util->getTranslated()->getYesNo()
-        );
+        $this->set('grs_study_name', [
+            'label' => $this->_('Study name'),
+            'description' => $this->_('The study name is used to group blocks.'),
+            'required' => true,
+            'validators[unique]' => $this->createUniqueValidator('grs_study_name'),
+        ]);
+        $this->set('grs_active', [
+            'label' => $this->_('Active'),
+            'elementClass' => 'Checkbox',
+            'multiOptions' => $this->util->getTranslated()->getYesNo(),
+        ]);
 
         if (($action !== 'create') && ($action !== 'import')) {
             // SUM columns
@@ -66,13 +70,22 @@ class RandomizationStudyModel extends \Gems_Model_JoinModel
                         WHERE grb_active = 1 AND grb_study_id = grs_study_id)";
 
             $this->addColumn(new \Zend_Db_Expr(sprintf($sql, "grb_use_count")), 'used');
-            $this->set('used', 'label', $this->_('Used'), 'elementClass', 'Exhibitor');
+            $this->set('used', [
+                'label' => $this->_('Used'),
+                'elementClass' => 'Exhibitor',
+            ]);
 
             $this->addColumn(new \Zend_Db_Expr(sprintf($sql, "grb_use_max - grb_use_count")), 'free');
-            $this->set('free', 'label', $this->_('Unused'), 'elementClass', 'Exhibitor');
+            $this->set('free', [
+                'label' => $this->_('Unused'),
+                'elementClass' => 'Exhibitor',
+            ]);
 
             $this->addColumn(new \Zend_Db_Expr(sprintf($sql, "grb_use_max")), 'total');
-            $this->set('total', 'label', $this->_('Total'), 'elementClass', 'Exhibitor');
+            $this->set('total', [
+                'label' => $this->_('Total'),
+                'elementClass' => 'Exhibitor',
+            ]);
         }
         
         return $this;

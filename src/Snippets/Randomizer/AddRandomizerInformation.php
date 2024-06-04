@@ -11,6 +11,8 @@
 
 namespace GemsRandomizer\Snippets\Randomizer;
 
+use Zalt\Snippets\TranslatableSnippetAbstract;
+
 /**
  *
  * @package    GemsRandomizer
@@ -18,7 +20,7 @@ namespace GemsRandomizer\Snippets\Randomizer;
  * @license    New BSD License
  * @since      Class available since version 1.8.8
  */
-class AddRandomizerInformation extends \MUtil_Snippets_SnippetAbstract
+class AddRandomizerInformation extends TranslatableSnippetAbstract
 {
     /**
      * @var string 
@@ -30,10 +32,9 @@ class AddRandomizerInformation extends \MUtil_Snippets_SnippetAbstract
      *
      * This is a stub function either override getHtmlOutput() or override render()
      *
-     * @param \Zend_View_Abstract $view Just in case it is needed here
-     * @return \MUtil_Html_HtmlInterface Something that can be rendered
+     * @return \Zalt\Html\Sequence Something that can be rendered
      */
-    public function getHtmlOutput(\Zend_View_Abstract $view)
+    public function getHtmlOutput()
     {
         $seq = $this->getHtmlSequence();
         $seq->br();

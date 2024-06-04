@@ -11,7 +11,8 @@
 
 namespace GemsRandomizer\Model\Dependency;
 
-use MUtil\Model\Dependency\DependencyAbstract;
+use Zalt\Model\Dependency\DependencyAbstract;
+
 
 /**
  *
@@ -54,7 +55,7 @@ class UseCountDependency extends DependencyAbstract
     /**
      * @inheritDoc
      */
-    public function getChanges(array $context, $new)
+    public function getChanges(array $context, bool $new = false): array
     {
         $output = [];
         if ($context['grb_use_count'] > 0) {

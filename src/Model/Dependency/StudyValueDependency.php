@@ -12,6 +12,8 @@
 namespace GemsRandomizer\Model\Dependency;
 
 use GemsRandomizer\Util\RandomUtil;
+use Zalt\Base\TranslatorInterface;
+use Zalt\Model\Dependency\DependencyAbstract;
 
 /**
  *
@@ -20,7 +22,7 @@ use GemsRandomizer\Util\RandomUtil;
  * @license    New BSD License
  * @since      Class available since version 1.8.8
  */
-class StudyValueDependency extends \MUtil\Model\Dependency\DependencyAbstract
+class StudyValueDependency extends DependencyAbstract
 {
     /**
      * Array of setting => setting of setting changed by this dependency
@@ -52,26 +54,23 @@ class StudyValueDependency extends \MUtil\Model\Dependency\DependencyAbstract
     protected $_effecteds = ['grb_value_id'];
 
     /**
-     * @var \GemsRandomizer\Util\RandomUtil
-     */
-    protected $randomUtil;
-
-    /**
      * Constructor checks any subclass set variables
      *
-     * @param \GemsRandomizer\Util\RandomUtil $randomUtil
+     * @param RandomUtil $randomUtil
      */
-    public function __construct(RandomUtil $randomUtil)
+    public function __construct(
+        readonly TranslatorInterface $translate,
+        protected readonly RandomUtil $randomUtil)
     {
         $this->randomUtil = $randomUtil;
         
-        parent::__construct();
+        parent::__construct($translate);
     }    
     
     /**
      * @inheritDoc
      */
-    public function getChanges(array $context, $new)
+    public function getChanges(array $context, bool $new = false): array
     {
         $studyId = isset($context['grb_study_id']) ? $context['grb_study_id'] : null;
         return ['grb_value_id' => ['multiOptions' => $this->randomUtil->getRandomValues($studyId)]]; 

@@ -72,7 +72,7 @@ class ModuleSubscriber implements EventSubscriberInterface
         if ($prevMenu) {
             $contMenu = $prevMenu->getParent();
 
-            if ($contMenu instanceof \Gems_Menu_MenuAbstract) {
+            if ($contMenu instanceof \Gems_MenuMenu_MenuAbstract) {
                 $blockMenu = $contMenu->addContainer($translateAdapter->_('Block randomization'), null, ['order' => $prevMenu->get('order') + 4]);
 
                 $blockMenu->addBrowsePage($translateAdapter->_('Studies'), 'prr.studies', 'randomization-study')

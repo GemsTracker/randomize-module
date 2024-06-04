@@ -11,7 +11,7 @@
 
 namespace GemsRandomizer\Tracker\Model\Dependency;
 
-use Gems\Conditions;
+use GemsRandomizer\Util\RandomUtil;
 use MUtil\Model\Dependency\DependencyAbstract;
 
 /**
@@ -30,9 +30,16 @@ class RandomizerDependency extends DependencyAbstract
      *
      * @var array
      */
-    protected $_defaultEffects = array('description', 'elementClass', 'label', 'multiOptions', 'onchange', 'onclick',
-        'filters', 'validators',
-    );
+    protected $_defaultEffects = [
+        'description',
+        'elementClass',
+        'label',
+        'multiOptions',
+        'onchange',
+        'onclick',
+        'filters',
+        'validators',
+    ];
 
     /**
      * Array of name => name of items dependency depends on.
@@ -55,24 +62,18 @@ class RandomizerDependency extends DependencyAbstract
         'gtf_readonly' => ['elementClass', 'value'],
         'htmlCalc'     => ['elementClass', 'label'],
         'gtf_calculate_using' => ['description', 'elementClass', 'label', 'multiOptions'],
-        ];
+    ];
 
     /**
      *
-     * @var \Gems_Loader
+     * @param RandomUtil $randomUtil
      */
-    protected $loader;
-
-    /**
-     * @var \GemsRandomizer\Util\RandomUtil
-     */
-    protected $randomUtil;
-
-    /**
-     *
-     * @var \Gems_Util
-     */
-    protected $util;
+    public function __construct(
+        protected readonly RandomUtil $randomUtil
+        )
+    {
+        parent::__construct();
+    }
 
     /**
      * Returns the changes that must be made in an array consisting of
@@ -94,7 +95,7 @@ class RandomizerDependency extends DependencyAbstract
      * @param boolean $new True when the item is a new record not yet saved
      * @return array name => array(setting => value)
      */
-    public function getChanges(array $context, $new)
+    public function getChanges(array $context, bool $new = false): array
     {
         $output['gtf_required'] = [
             'elementClass' => 'Hidden',
@@ -113,7 +114,7 @@ class RandomizerDependency extends DependencyAbstract
             'description'  => $this->_('Select the study name for this randomization'),
             'elementClass' => 'MultiCheckbox',
             'multiOptions' => $this->randomUtil->getRandomStudies(),
-            'validators[ranfge]' => ['CheckedItemsRange', false, ['gtf_calculate_using', 1, 1]],
+            'validators[range]' => ['CheckedItemsRange', false, ['gtf_calculate_using', 1, 1]],
         ];;
         // \MUtil_Echo::track($options);
 

@@ -40,7 +40,7 @@ class ResetStudyFormSnippet extends FormSnippetAbstract
     /**
      * @inheritDoc
      */
-    protected function addFormElements(\Zend_Form $form)
+    protected function addFormElements(mixed $form)
     {
         $this->saveLabel = $this->_('Reset the study NOW!');
         
@@ -71,7 +71,7 @@ class ResetStudyFormSnippet extends FormSnippetAbstract
     /**
      * @inheritDoc
      */
-    protected function saveData()
+    protected function saveData(): int
     {
         $studyName     = $this->formData['study_name'];
         $this->studyId = array_search($studyName, $this->randomUtil->getRandomStudies());

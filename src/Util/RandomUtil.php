@@ -74,7 +74,7 @@ class RandomUtil extends UtilAbstract
 
     /**
      * @param array|string $blockData
-     * @return \GemsRandomizer\Tracker\RandomizationAssignment                 
+     * @return RandomizationAssignment|null
      */
     public function getRandomAssignment($blockData)
     {
@@ -100,7 +100,7 @@ class RandomUtil extends UtilAbstract
     {
         $sql = "SELECT grs_study_id, grs_study_name FROM gemsrnd__randomization_studies ORDER BY grs_study_name;";
 
-        return $this->_getSelectPairsCached(__FUNCTION__, $sql, [], ['randomstudies']);
+        return $this->utilDbHelper->getSelectPairsCached(__FUNCTION__, $sql, [], ['randomstudies']);
     }
 
     /**
@@ -115,7 +115,7 @@ class RandomUtil extends UtilAbstract
         }
         $sql .= " ORDER BY grv_value;";
 
-        return $this->_getSelectPairsCached(__FUNCTION__, $sql, $studyId, ['randomvalues']);
+        return $this->utilDbHelper->getSelectPairsCached(__FUNCTION__, $sql, [$studyId], ['randomvalues']);
     }
     
     /**
@@ -130,6 +130,6 @@ class RandomUtil extends UtilAbstract
         }
         $sql .= " ORDER BY grv_value_label;";
         
-        return $this->_getSelectPairsCached(__FUNCTION__, $sql, $studyId, ['randomvalues']);
+        return $this->utilDbHelper->getSelectPairsCached(__FUNCTION__, $sql, [$studyId], ['randomvalues']);
     }
 }

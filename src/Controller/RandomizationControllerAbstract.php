@@ -11,6 +11,11 @@
 
 namespace GemsRandomizer\Controller;
 
+use Gems\Snippets\Generic\ContentTitleSnippet;
+use Gems\Snippets\Generic\CurrentSiblingsButtonRowSnippet;
+use GemsRandomizer\Snippets\Randomizer\AddRandomizerInformation;
+use MUtil\Controller\ModelSnippetActionAbstract;
+
 /**
  *
  * @package    GemsRandomizer
@@ -18,7 +23,7 @@ namespace GemsRandomizer\Controller;
  * @license    New BSD License
  * @since      Class available since version 1.8.8
  */
-abstract class RandomizationControllerAbstract extends \Gems_Controller_ModelSnippetActionAbstract
+abstract class RandomizationControllerAbstract extends ModelSnippetActionAbstract
 {
     /**
      * The parameters used for the autofilter action.
@@ -41,21 +46,30 @@ abstract class RandomizationControllerAbstract extends \Gems_Controller_ModelSni
      *
      * @var mixed String or array of snippets name
      */
-    protected $createEditSnippets = ['ModelFormSnippetGeneric', 'Randomizer\\AddRandomizerInformation'];
+    protected $createEditSnippets = [
+        ModelFormSnippetGeneric::class,
+        AddRandomizerInformation::class,
+    ];
 
     /**
      * The snippets used for the delete action.
      *
      * @var mixed String or array of snippets name
      */
-    protected $deleteSnippets = ['ModelItemYesNoDeleteSnippetGeneric', 'Randomizer\\AddRandomizerInformation'];
+    protected $deleteSnippets = [
+        ModelItemYesNoDeleteSnippetGeneric::class,
+        AddRandomizerInformation::class,
+    ];
 
     /**
      * The snippets used for the index action, after those in autofilter
      *
      * @var mixed String or array of snippets name
      */
-    protected $indexStopSnippets = ['Generic\\CurrentSiblingsButtonRowSnippet', 'Randomizer\\AddRandomizerInformation'];
+    protected $indexStopSnippets = [
+        CurrentSiblingsButtonRowSnippet::class,
+        AddRandomizerInformation::class,
+    ];
 
     /**
      * @var \GemsRandomizer\Util\RandomUtil
@@ -67,5 +81,9 @@ abstract class RandomizationControllerAbstract extends \Gems_Controller_ModelSni
      *
      * @var mixed String or array of snippets name
      */
-    protected $showSnippets = ['Generic\\ContentTitleSnippet', 'ModelItemTableSnippetGeneric', 'Randomizer\\AddRandomizerInformation'];
+    protected $showSnippets = [
+        ContentTitleSnippet::class,
+        ModelItemTableSnippetGeneric::class,
+        AddRandomizerInformation::class,
+    ];
 }

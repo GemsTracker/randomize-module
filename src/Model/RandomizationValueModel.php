@@ -11,6 +11,8 @@
 
 namespace GemsRandomizer\Model;
 
+use Gems\Model\JoinModel;
+
 /**
  *
  * @package    GemsRandomizer
@@ -18,7 +20,7 @@ namespace GemsRandomizer\Model;
  * @license    New BSD License
  * @since      Class available since version 1.8.8
  */
-class RandomizationValueModel extends \Gems_Model_JoinModel
+class RandomizationValueModel extends JoinModel
 {
     /**
      * @var \GemsRandomizer\Util\RandomUtil
@@ -57,20 +59,26 @@ class RandomizationValueModel extends \Gems_Model_JoinModel
         $this->resetOrder();
 
         if ($detailed) {
-            $this->set('grv_study_id', 'label', $this->_('Study name'),
-                       'description', $this->_('The study name is used to group blocks.'),
-                       'multiOptions', $this->randomUtil->getRandomStudies()
-            );
+            $this->set('grv_study_id', [
+                'label' => $this->_('Study name'),
+                'description' => $this->_('The study name is used to group blocks.'),
+                'multiOptions' => $this->randomUtil->getRandomStudies(),
+            ]);
         } else {
-            $this->set('grs_study_name', 'label', $this->_('Study name'),
-                       'description', $this->_('The study name is used to group blocks.')
-            );
+            $this->set('grs_study_name', [
+                'label' => $this->_('Study name'),
+                'description' => $this->_('The study name is used to group blocks.'),
+            ]);
         }
-        $this->set('grv_value', 'label', $this->_('Randomization export value'),
-                   'description', $this->_('The outcome value assigned to a randomization, used for export.'),
-                   'validators[unique]', $this->createUniqueValidator(['grv_study_id', 'grv_value'], ['grv_study_id']));
-        $this->set('grv_value_label', 'label', $this->_('Randomization value label'),
-                   'description', $this->_('The outcome label shown in the field.'));
+        $this->set('grv_value', [
+            'label' => $this->_('Randomization export value'),
+            'description' => $this->_('The outcome value assigned to a randomization, used for export.'),
+            'validators[unique]' => $this->createUniqueValidator(['grv_study_id', 'grv_value'], ['grv_study_id']),
+        ]);
+        $this->set('grv_value_label', [
+            'label' => $this->_('Randomization value label'),
+            'description' => $this->_('The outcome label shown in the field.'),
+        ]);
 
         if (($action !== 'create') && ($action !== 'import')) {
             // SUM columns
@@ -79,13 +87,22 @@ class RandomizationValueModel extends \Gems_Model_JoinModel
                         WHERE grb_active = 1 AND grb_value_id = grv_value_id)";
 
             $this->addColumn(new \Zend_Db_Expr(sprintf($sql, "grb_use_count")), 'used');
-            $this->set('used', 'label', $this->_('Used'), 'elementClass', 'Exhibitor');
+            $this->set('used', [
+                'label' => $this->_('Used'),
+                'elementClass' => 'Exhibitor',
+            ]);
 
             $this->addColumn(new \Zend_Db_Expr(sprintf($sql, "grb_use_max - grb_use_count")), 'free');
-            $this->set('free', 'label', $this->_('Unused'), 'elementClass', 'Exhibitor');
+            $this->set('free', [
+                'label' => $this->_('Unused'),
+                'elementClass' => 'Exhibitor',
+            ]);
 
             $this->addColumn(new \Zend_Db_Expr(sprintf($sql, "grb_use_max")), 'total');
-            $this->set('total', 'label', $this->_('Total'), 'elementClass', 'Exhibitor');
+            $this->set('total', [
+                'label' => $this->_('Total'),
+                'elementClass' => 'Exhibitor',
+            ]);
         }
         
         return $this;
