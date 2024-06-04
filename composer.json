@@ -64,5 +64,8 @@
             "type": "git",
             "url": "https://github.com/MagnaFacta/zalt-util.git"
         }
-    ]
+    ],
+    "require-dev": {
+        "phpstan/phpstan": "2.0.x-dev"
+    }
 }
