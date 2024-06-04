@@ -31,7 +31,7 @@ class StudyValueDependency extends DependencyAbstract
      *
      * @var array
      */
-    protected $_defaultEffects = ['multiOptions'];
+    protected array $_defaultEffects = ['multiOptions'];
 
     /**
      * Array of name => name of items dependency depends on.
@@ -41,7 +41,7 @@ class StudyValueDependency extends DependencyAbstract
      *
      * @var array Of name => name
      */
-    protected $_dependentOn = ['grb_study_id'];
+    protected array $_dependentOn = ['grb_study_id'];
 
     /**
      * Array of name => array(setting => setting) of fields with settings changed by this dependency
@@ -51,7 +51,7 @@ class StudyValueDependency extends DependencyAbstract
      *
      * @var array of name => array(setting => setting)
      */
-    protected $_effecteds = ['grb_value_id'];
+    protected array $_effecteds = ['grb_value_id'];
 
     /**
      * Constructor checks any subclass set variables
@@ -59,11 +59,9 @@ class StudyValueDependency extends DependencyAbstract
      * @param RandomUtil $randomUtil
      */
     public function __construct(
-        readonly TranslatorInterface $translate,
+        TranslatorInterface $translate,
         protected readonly RandomUtil $randomUtil)
     {
-        $this->randomUtil = $randomUtil;
-        
         parent::__construct($translate);
     }    
     

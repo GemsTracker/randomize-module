@@ -30,7 +30,7 @@ class UseCountDependency extends DependencyAbstract
      *
      * @var array
      */
-    protected $_defaultEffects = ['readonly'];
+    protected array $_defaultEffects = ['readonly'];
 
     /**
      * Array of name => name of items dependency depends on.
@@ -40,7 +40,7 @@ class UseCountDependency extends DependencyAbstract
      *
      * @var array Of name => name
      */
-    protected $_dependentOn = ['grb_use_count'];
+    protected array $_dependentOn = ['grb_use_count'];
 
     /**
      * Array of name => array(setting => setting) of fields with settings changed by this dependency
@@ -50,7 +50,7 @@ class UseCountDependency extends DependencyAbstract
      *
      * @var array of name => array(setting => setting)
      */
-    protected $_effecteds = ['grb_block_id', 'grb_value_id', 'grb_use_count'];
+    protected array $_effecteds = ['grb_block_id', 'grb_value_id', 'grb_use_count'];
 
     /**
      * @inheritDoc

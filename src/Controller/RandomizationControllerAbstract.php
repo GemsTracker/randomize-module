@@ -13,6 +13,9 @@ namespace GemsRandomizer\Controller;
 
 use Gems\Snippets\Generic\ContentTitleSnippet;
 use Gems\Snippets\Generic\CurrentSiblingsButtonRowSnippet;
+use Gems\Snippets\ModelConfirmDeleteSnippet;
+use Gems\Snippets\ModelDetailTableSnippet;
+use Gems\Snippets\ModelFormSnippetAbstract;
 use GemsRandomizer\Snippets\Randomizer\AddRandomizerInformation;
 use MUtil\Controller\ModelSnippetActionAbstract;
 
@@ -47,7 +50,7 @@ abstract class RandomizationControllerAbstract extends ModelSnippetActionAbstrac
      * @var mixed String or array of snippets name
      */
     protected $createEditSnippets = [
-        ModelFormSnippetGeneric::class,
+        ModelFormSnippetAbstract::class,
         AddRandomizerInformation::class,
     ];
 
@@ -57,7 +60,7 @@ abstract class RandomizationControllerAbstract extends ModelSnippetActionAbstrac
      * @var mixed String or array of snippets name
      */
     protected $deleteSnippets = [
-        ModelItemYesNoDeleteSnippetGeneric::class,
+        ModelConfirmDeleteSnippet::class,
         AddRandomizerInformation::class,
     ];
 
@@ -83,7 +86,7 @@ abstract class RandomizationControllerAbstract extends ModelSnippetActionAbstrac
      */
     protected $showSnippets = [
         ContentTitleSnippet::class,
-        ModelItemTableSnippetGeneric::class,
+        ModelDetailTableSnippet::class,
         AddRandomizerInformation::class,
     ];
 }

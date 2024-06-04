@@ -102,7 +102,7 @@ class ResetStudyFormSnippet extends FormSnippetAbstract
      * Set what to do when the form is 'finished'.
      *
      * #param array $params Url items to set for this route
-     * @return MUtil_Snippets_ModelFormSnippetAbstract (continuation pattern)
+     * @return FormSnippetAbstract (continuation pattern)
      */
     protected function setAfterSaveRoute(array $params = array())
     {

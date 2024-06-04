@@ -23,7 +23,7 @@ use Gems\Model\JoinModel;
 class RandomizationStudyModel extends JoinModel
 {
     /**
-     * @var \Gems_Util
+     * @var \Gems\Util
      */
     protected $util;
     
@@ -47,7 +47,7 @@ class RandomizationStudyModel extends JoinModel
      *
      * @param boolean $detailed True when the current action is not in $summarizedActions.
      * @param string $action The current action.
-     * @return BlockRandomizationModel
+     * @return RandomizationStudyModel
      */
     public function applySettings($detailed, $action)
     {

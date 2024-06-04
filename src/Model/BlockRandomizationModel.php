@@ -28,7 +28,7 @@ use Laminas\Filter\ToInt;
 class BlockRandomizationModel extends JoinModel
 {
     /**
-     * @var \Gems_Loader
+     * @var \Gems\Loader
      */
     protected $loader;
 
@@ -38,7 +38,7 @@ class BlockRandomizationModel extends JoinModel
     protected $randomUtil;
 
     /**
-     * @var \Gems_Util
+     * @var \Gems\Util
      */
     protected $util;
 

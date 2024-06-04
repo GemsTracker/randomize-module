@@ -24,7 +24,7 @@ class RandomizerSearchSnippet extends AutosearchFormSnippet
 {
     /**
      *
-     * @var \Gems_Loader
+     * @var \Gems\Loader
      */
     protected $loader;
 

@@ -26,7 +26,7 @@ use Zalt\Html\Html;
 class RandomizationField extends FieldAbstract
 {
     /**
-     * @var \Gems_User_User
+     * @var \Gems\User\User
      */
     protected $currentUser;
     
@@ -36,12 +36,12 @@ class RandomizationField extends FieldAbstract
     protected $db;
 
     /**
-     * @var \Gems_Loader
+     * @var \Gems\Loader
      */
     protected $loader;
 
     /**
-     * @var \Gems_Menu
+     * @var \Gems\Menu\Menu
      */
     protected $menu;
 
@@ -56,7 +56,7 @@ class RandomizationField extends FieldAbstract
     protected $request;
 
     /**
-     * @var \Gems_Tracker
+     * @var \Gems\Tracker
      */
     protected $tracker;
 
@@ -80,7 +80,7 @@ class RandomizationField extends FieldAbstract
      * @param array $fieldData The other values loaded so far
      * @return mixed the new value
      */
-    public function calculateFieldInfo($currentValue, array $fieldData)
+    public function calculateFieldInfo($currentValue, array $fieldData): mixed
     {
         if ($currentValue) {
             $assignment = $this->randomUtil->getRandomAssignment($currentValue);
@@ -101,7 +101,7 @@ class RandomizationField extends FieldAbstract
      * @param array $trackData The currently available track data (track id may be empty)
      * @return mixed the new value
      */
-    public function calculateFieldValue($currentValue, array $fieldData, array $trackData)
+    public function calculateFieldValue($currentValue, array $fieldData, array $trackData): mixed
     {
         // \MUtil_Echo::track($this->fieldDefinition, $fieldData, $trackData);
         if ($currentValue) {
@@ -163,7 +163,7 @@ class RandomizationField extends FieldAbstract
     /**
      * Dispaly an appoitment as text
      *
-     * @param value $value
+     * @param mixed $value
      * @return string
      */
     public function showRandomization($value)
