@@ -31,6 +31,7 @@ class ConfigProvider
     public function __invoke(): array
     {
         return [
+            'overLoaderPaths'  => ['GemsRandomizer'],
             'migrations'   => $this->getMigrations(),
             'routes'       => $this->getRoutes(),
         ];
