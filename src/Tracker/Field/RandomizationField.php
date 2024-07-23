@@ -33,16 +33,6 @@ use Zalt\Html\Html;
  */
 class RandomizationField extends FieldAbstract
 {
-    /**
-     * @var \Gems\Menu\Menu
-     */
-    protected $menu;
-
-    /**
-     * @var \Zend_Controller_Request_Abstract
-     */
-    protected $request;
-
     public function __construct(
         int $trackId,
         string $fieldKey,
