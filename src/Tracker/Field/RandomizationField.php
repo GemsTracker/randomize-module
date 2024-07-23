@@ -14,6 +14,7 @@ namespace GemsRandomizer\Tracker\Field;
 use Gems\Condition\ConditionLoader;
 use Gems\Condition\TrackConditionInterface;
 use Gems\Db\ResultFetcher;
+use Gems\Legacy\CurrentUserRepository;
 use Gems\Menu\RouteHelper;
 use Gems\Model;
 use Gems\Tracker;
@@ -32,11 +33,6 @@ use Zalt\Html\Html;
  */
 class RandomizationField extends FieldAbstract
 {
-    /**
-     * @var \Gems\User\User
-     */
-    protected $currentUser;
-
     /**
      * @var \Gems\Menu\Menu
      */
@@ -58,6 +54,7 @@ class RandomizationField extends FieldAbstract
         protected readonly RandomUtil $randomUtil,
         protected readonly Tracker $tracker,
         protected readonly RouteHelper $routeHelper,
+        protected readonly CurrentUserRepository $currentUserRepository,
     )
     {
         parent::__construct($trackId, $fieldKey, $fieldDefinition, $translator, $translatedUtil);
@@ -175,7 +172,7 @@ class RandomizationField extends FieldAbstract
         if (! $value) {
             return $this->translator->_('Unknown');
         }
-        if (! $this->currentUser->hasPrivilege('prr.assignments.seeresult')) {
+        if (! $this->currentUserRepository->getCurrentUser()->hasPrivilege('prr.assignments.seeresult')) {
             return '******';
         }
 
