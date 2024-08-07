@@ -9,7 +9,7 @@
             "email": "mjong@magnafacta.nl"
         }
     ],
-    "minimum-stability": "dev",
+    "minimum-stability": "stable",
     "require": {
         "php": ">=8.1.0",
         "gemstracker/gemstracker": "2.x-dev"
