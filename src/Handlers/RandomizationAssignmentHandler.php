@@ -21,7 +21,7 @@ use Zalt\SnippetsActions\SnippetActionInterface;
  * @subpackage GemsRandomizer\Handlers
  * @since      Class available since version 2.0
  */
-class RandomizationHandler extends RandomizationHandlerAbstract
+class RandomizationAssignmentHandler extends RandomizationHandlerAbstract
 {
     use CsrfHandlerTrait;
 

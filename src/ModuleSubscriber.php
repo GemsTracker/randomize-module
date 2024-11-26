@@ -25,7 +25,7 @@ use Gems\Event\Application\TranslatableNamedArrayEvent;
 use Gems\Event\Application\ZendTranslateEvent;
 use Gems\Handlers\EmptyHandler;
 use Gems\Menu\HandlerMenuTrait;
-use GemsRandomizer\Handlers\RandomizationHandler;
+use GemsRandomizer\Handlers\RandomizationAssignmentHandler;
 use GemsRandomizer\Handlers\RandomizationStrataHandler;
 use GemsRandomizer\Handlers\RandomizationStudyHandler;
 use GemsRandomizer\Handlers\RandomizationValueHandler;
@@ -102,7 +102,7 @@ class ModuleSubscriber implements EventSubscriberInterface
                 parent: 'track-builder',
             ),
             $this->createMenuForHandler(
-                controllerClass: RandomizationHandler::class,
+                controllerClass: RandomizationAssignmentHandler::class,
                 name: 'track-builder.randomization.assignments',
                 label: $this->_('Assignments'),
                 parent: 'track-builder.randomization',
