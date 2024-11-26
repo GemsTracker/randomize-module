@@ -26,6 +26,7 @@ use Gems\Event\Application\ZendTranslateEvent;
 use Gems\Handlers\EmptyHandler;
 use Gems\Menu\HandlerMenuTrait;
 use GemsRandomizer\Handlers\RandomizationAssignmentHandler;
+use GemsRandomizer\Handlers\RandomizationHandler;
 use GemsRandomizer\Handlers\RandomizationStrataHandler;
 use GemsRandomizer\Handlers\RandomizationStudyHandler;
 use GemsRandomizer\Handlers\RandomizationValueHandler;
@@ -96,7 +97,8 @@ class ModuleSubscriber implements EventSubscriberInterface
         $menu = $event->getMenu();
 
         $menuConfig = [
-            $this->createMenuItem(
+            $this->createMenuForHandler(
+                controllerClass: RandomizationHandler::class,
                 name: 'track-builder.randomization',
                 label: $this->_('Block randomization'),
                 parent: 'track-builder',
@@ -105,19 +107,19 @@ class ModuleSubscriber implements EventSubscriberInterface
                 controllerClass: RandomizationAssignmentHandler::class,
                 name: 'track-builder.randomization.assignments',
                 label: $this->_('Assignments'),
-                parent: 'track-builder.randomization',
+                parent: 'track-builder.randomization.index',
             ),
             $this->createMenuForHandler(
                 controllerClass: RandomizationStudyHandler::class,
                 name: 'track-builder.randomization.studies',
                 label: $this->_('Studies'),
-                parent: 'track-builder.randomization',
+                parent: 'track-builder.randomization.index',
             ),
             [
                 'name' => 'track-builder.randomization.strata.index',
                 'label' => $this->translate->trans('Conditions'),
                 'type' => 'route-link-item',
-                'parent' => 'track-builder.randomization',
+                'parent' => 'track-builder.randomization.index',
                 'children' => [
                     [
                         'name' => 'track-builder.randomization.strata.create',
@@ -147,7 +149,7 @@ class ModuleSubscriber implements EventSubscriberInterface
                 controllerClass: RandomizationValueHandler::class,
                 name: 'track-builder.randomization.values',
                 label: $this->_('Values'),
-                parent: 'track-builder.randomization',
+                parent: 'track-builder.randomization.index',
             ),
         ];
 

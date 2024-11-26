@@ -11,10 +11,10 @@ declare(strict_types=1);
 
 namespace GemsRandomizer;
 
-use Gems\Handlers\EmptyHandler;
 use Gems\Route\ModelSnippetActionRouteHelpers;
 use Gems\Util\RouteGroupTrait;
 use GemsRandomizer\Handlers\RandomizationAssignmentHandler;
+use GemsRandomizer\Handlers\RandomizationHandler;
 use GemsRandomizer\Handlers\RandomizationStrataHandler;
 use GemsRandomizer\Handlers\RandomizationStudyHandler;
 use GemsRandomizer\Handlers\RandomizationValueHandler;
@@ -44,13 +44,7 @@ class ConfigProvider
                 'middleware' => \Gems\Config\Route::$loggedInMiddleware,
                 ],
                 [
-                    ...$this->createRoute(
-                        name: 'track-builder.randomization',
-                        path: '/track-builder/randomization',
-                        middleware: [
-                            EmptyHandler::class,
-                        ],
-                    ),
+                    ...$this->createHandlerRoute(baseName: 'track-builder.randomization', controllerClass: RandomizationHandler::class),
                     ...$this->createHandlerRoute(baseName: 'track-builder.randomization.assignments',  controllerClass: RandomizationAssignmentHandler::class),
                     ...$this->createHandlerRoute(baseName: 'track-builder.randomization.studies',  controllerClass: RandomizationStudyHandler::class),
                     ...$this->createSnippetRoutes(baseName: 'track-builder.randomization.strata', controllerClass: RandomizationStrataHandler::class),
