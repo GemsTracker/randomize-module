@@ -11,7 +11,14 @@
 
 namespace GemsRandomizer\Snippets\Randomizer;
 
+use GemsRandomizer\Handlers\RandomizationAssignmentHandler;
+use GemsRandomizer\Handlers\RandomizationStrataHandler;
+use GemsRandomizer\Handlers\RandomizationStudyHandler;
+use GemsRandomizer\Handlers\RandomizationValueHandler;
+use Zalt\Base\RequestInfo;
+use Zalt\Base\TranslatorInterface;
 use Zalt\Snippets\TranslatableSnippetAbstract;
+use Zalt\SnippetsLoader\SnippetOptions;
 
 /**
  *
@@ -26,7 +33,21 @@ class AddRandomizerInformation extends TranslatableSnippetAbstract
      * @var string 
      */
     protected $randomizationStep;
-    
+
+    public function __construct(SnippetOptions $snippetOptions, RequestInfo $requestInfo, TranslatorInterface $translate)
+    {
+        parent::__construct($snippetOptions, $requestInfo, $translate);
+
+        $this->randomizationStep = match ($requestInfo->getCurrentController()) {
+            RandomizationStudyHandler::class => 'study',
+            RandomizationStrataHandler::class => 'strata',
+            RandomizationValueHandler::class => 'values',
+            RandomizationAssignmentHandler::class => 'assignments',
+        };
+
+        // dump($this->randomizationStep);
+    }
+
     /**
      * Create the snippets content
      *

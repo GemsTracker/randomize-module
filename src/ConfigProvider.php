@@ -31,9 +31,10 @@ class ConfigProvider
     public function __invoke(): array
     {
         return [
-            'overLoaderPaths'  => ['GemsRandomizer'],
-            'migrations'   => $this->getMigrations(),
-            'routes'       => $this->getRoutes(),
+            'overLoaderPaths' => ['GemsRandomizer'],
+            'migrations'      => $this->getMigrations(),
+            'routes'          => $this->getRoutes(),
+            'translations'    => $this->getTranslationSettings(),
         ];
     }
 
@@ -45,10 +46,10 @@ class ConfigProvider
                 ],
                 [
                     ...$this->createHandlerRoute(baseName: 'track-builder.randomization', controllerClass: RandomizationHandler::class),
-                    ...$this->createHandlerRoute(baseName: 'track-builder.randomization.assignments',  controllerClass: RandomizationAssignmentHandler::class),
                     ...$this->createHandlerRoute(baseName: 'track-builder.randomization.studies',  controllerClass: RandomizationStudyHandler::class),
                     ...$this->createSnippetRoutes(baseName: 'track-builder.randomization.strata', controllerClass: RandomizationStrataHandler::class),
                     ...$this->createHandlerRoute(baseName: 'track-builder.randomization.values',  controllerClass: RandomizationValueHandler::class),
+                    ...$this->createHandlerRoute(baseName: 'track-builder.randomization.assignments',  controllerClass: RandomizationAssignmentHandler::class),
                 ]
             ),
         ];
@@ -69,4 +70,12 @@ class ConfigProvider
         ];
     }
 
+    public function getTranslationSettings(): array
+    {
+        return [
+            'paths' => [
+                'GemsRandomizer' => [dirname(__DIR__) . '/languages'],
+            ],
+        ];
+    }
 }

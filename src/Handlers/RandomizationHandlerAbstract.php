@@ -77,5 +77,4 @@ abstract class RandomizationHandlerAbstract extends BrowseChangeHandler
             $action->appendStopSnippet(AddRandomizerInformation::class);
         }
     }
-
 }

@@ -54,15 +54,6 @@ class ModuleSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return [
-            // GetDatabasePaths::NAME => [
-            //     ['getDatabasePaths'],
-            // ],
-            // LoaderInitEvent::NAME => [
-            //     ['initLoader'],
-            // ],
-            // 'gems.model.create.conditions' => [
-            //     ['createConditionModel'],
-            // ],
             TrackFieldDependencyListEvent::class => [
                 'getFieldDependencies',
             ],
@@ -75,12 +66,6 @@ class ModuleSubscriber implements EventSubscriberInterface
             CreateMenuEvent::class => [
                 'updateMenu',
             ],
-            // SetFrontControllerDirectory::NAME => [
-            //     ['setFrontControllerDirectory'],
-            // ],
-            // ZendTranslateEvent::NAME => [
-            //     ['addTranslation'],
-            // ],
         ];
     }
 
@@ -97,17 +82,12 @@ class ModuleSubscriber implements EventSubscriberInterface
         $menu = $event->getMenu();
 
         $menuConfig = [
-            $this->createMenuForHandler(
-                controllerClass: RandomizationHandler::class,
-                name: 'track-builder.randomization',
+            $this->createMenuItem(
+                // controllerClass: RandomizationHandler::class,
+                name: 'track-builder.randomization.index',
                 label: $this->_('Block randomization'),
+                type: 'container',
                 parent: 'track-builder',
-            ),
-            $this->createMenuForHandler(
-                controllerClass: RandomizationAssignmentHandler::class,
-                name: 'track-builder.randomization.assignments',
-                label: $this->_('Assignments'),
-                parent: 'track-builder.randomization.index',
             ),
             $this->createMenuForHandler(
                 controllerClass: RandomizationStudyHandler::class,
@@ -151,16 +131,14 @@ class ModuleSubscriber implements EventSubscriberInterface
                 label: $this->_('Values'),
                 parent: 'track-builder.randomization.index',
             ),
+            $this->createMenuForHandler(
+                controllerClass: RandomizationAssignmentHandler::class,
+                name: 'track-builder.randomization.assignments',
+                label: $this->_('Assignments'),
+                parent: 'track-builder.randomization.index',
+            ),
         ];
 
-        // $blockMenu = $contMenu->addContainer($translateAdapter->_('Block randomization'), null, ['order' => $prevMenu->get('order') + 4]);
-
-        // $blockMenu->addBrowsePage($translateAdapter->_('Studies'), 'prr.studies', 'randomization-study')
-        //     ->addAction($translateAdapter->_('Reset study'), 'prr.studies.reset', 'reset');
-        // $blockMenu->addBrowsePage($translateAdapter->_('Strata'), 'prr.strata', 'randomization-strata');
-        // $blockMenu->addBrowsePage($translateAdapter->_('Values'), 'prr.values', 'randomization-value');
-        // $blockMenu->addBrowsePage($translateAdapter->_('Assignments'), 'prr.assignments', 'randomization');
- 
         $menu->addFromConfig($menu, $menuConfig);
 
         // See randomization outcome
