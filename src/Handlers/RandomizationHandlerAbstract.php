@@ -17,7 +17,7 @@ use Gems\Handlers\BrowseChangeHandler;
 use Gems\Model\MetaModelLoader;
 use Gems\SnippetsActions\Browse\BrowseSearchAction;
 use GemsRandomizer\Snippets\Randomizer\AddRandomizerInformation;
-use GemsRandomizer\Util\RandomUtil;
+use GemsRandomizer\Repository\RandomRepository;
 use Psr\Cache\CacheItemPoolInterface;
 use Zalt\Base\TranslatorInterface;
 use Zalt\SnippetsActions\SnippetActionInterface;
@@ -63,7 +63,7 @@ abstract class RandomizationHandlerAbstract extends BrowseChangeHandler
         MetaModelLoader $metaModelLoader,
         TranslatorInterface $translate,
         CacheItemPoolInterface $cache,
-        protected readonly RandomUtil $randomUtil,
+        protected readonly RandomRepository $randomRepository,
     )
     {
         parent::__construct($responder, $metaModelLoader, $translate, $cache);

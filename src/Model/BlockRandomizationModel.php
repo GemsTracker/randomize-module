@@ -19,7 +19,7 @@ use Gems\SnippetsActions\Form\CreateAction;
 use Gems\Util\Translated;
 use GemsRandomizer\Model\Dependency\StudyValueDependency;
 use GemsRandomizer\Model\Dependency\UseCountDependency;
-use GemsRandomizer\Util\RandomUtil;
+use GemsRandomizer\Repository\RandomRepository;
 use Laminas\Filter\Digits;
 use Laminas\Validator\Digits as DigitsValidator;
 use Zalt\Base\TranslatorInterface;
@@ -41,7 +41,7 @@ class BlockRandomizationModel extends JoinModel
         protected readonly Translated $translatedUtil,
         protected readonly ConditionLoader $conditionLoader,
         protected readonly StaffRepository $staffRepository,
-        protected readonly RandomUtil $randomUtil,
+        protected readonly RandomRepository $randomRepository,
         TranslatorInterface $translate,
     )
     {
@@ -80,7 +80,7 @@ class BlockRandomizationModel extends JoinModel
             'label' => $this->_('Study name'),
             'description' => $this->_('The study name is used to group blocks.'),
             'import_descr' => $this->_('The study name is used to group blocks.'),
-            'multiOptions' => $this->randomUtil->getRandomStudies(),
+            'multiOptions' => $this->randomRepository->getRandomStudies(),
         ]);
 
         $this->set('grb_condition', [
@@ -111,7 +111,7 @@ class BlockRandomizationModel extends JoinModel
         $this->set('grb_value_id', [
             'label' => $this->_('Assign value'),
             'description' => $this->_('The outcome value assigned to a randomization.'),
-            'multiOptions' => $this->randomUtil->getRandomValues(),
+            'multiOptions' => $this->randomRepository->getRandomValues(),
         ]);
 
         $this->set('grb_block_description', [
@@ -154,7 +154,7 @@ class BlockRandomizationModel extends JoinModel
         ]);
 
         //if ($detailed) {
-            $this->addDependency(new StudyValueDependency($this->translate, $this->randomUtil));
+            $this->addDependency(new StudyValueDependency($this->translate, $this->randomRepository));
             $this->addDependency(new UseCountDependency($this->translate));
         //}
 

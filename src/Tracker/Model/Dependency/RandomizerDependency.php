@@ -11,7 +11,7 @@
 
 namespace GemsRandomizer\Tracker\Model\Dependency;
 
-use GemsRandomizer\Util\RandomUtil;
+use GemsRandomizer\Repository\RandomRepository;
 use MUtil\Model\Dependency\DependencyAbstract;
 use Zalt\Validator\Model\CheckedItemsRangeValidator;
 
@@ -65,12 +65,8 @@ class RandomizerDependency extends DependencyAbstract
         'gtf_calculate_using' => ['description', 'elementClass', 'label', 'multiOptions'],
     ];
 
-    /**
-     *
-     * @param RandomUtil $randomUtil
-     */
     public function __construct(
-        protected readonly RandomUtil $randomUtil
+        protected readonly RandomRepository $randomRepository
         )
     {
         parent::__construct();
@@ -114,7 +110,7 @@ class RandomizerDependency extends DependencyAbstract
             'label' => $this->_('Study Blocks'),
             'description'  => $this->_('Select the study name for this randomization'),
             'elementClass' => 'MultiCheckbox',
-            'multiOptions' => $this->randomUtil->getRandomStudies(),
+            'multiOptions' => $this->randomRepository->getRandomStudies(),
             'validators[range]' => [CheckedItemsRangeValidator::class, false, ['gtf_calculate_using', 1, 1]],
         ];;
         // \MUtil_Echo::track($options);

@@ -20,7 +20,7 @@ use Gems\Model;
 use Gems\Tracker;
 use Gems\Tracker\Field\FieldAbstract;
 use Gems\Util\Translated;
-use GemsRandomizer\Util\RandomUtil;
+use GemsRandomizer\Repository\RandomRepository;
 use Zalt\Base\TranslatorInterface;
 use Zalt\Html\Html;
 
@@ -41,7 +41,7 @@ class RandomizationField extends FieldAbstract
         Translated $translatedUtil,
         protected readonly ConditionLoader $conditionLoader,
         protected readonly ResultFetcher $resultFetcher,
-        protected readonly RandomUtil $randomUtil,
+        protected readonly RandomRepository $randomRepository,
         protected readonly Tracker $tracker,
         protected readonly RouteHelper $routeHelper,
         protected readonly CurrentUserRepository $currentUserRepository,
@@ -73,7 +73,7 @@ class RandomizationField extends FieldAbstract
     public function calculateFieldInfo($currentValue, array $fieldData): mixed
     {
         if ($currentValue) {
-            $assignment = $this->randomUtil->getRandomAssignment($currentValue);
+            $assignment = $this->randomRepository->getRandomAssignment($currentValue);
 
             if ($assignment && $assignment->exists) {
                 return $assignment->getValueLabel();
@@ -166,7 +166,7 @@ class RandomizationField extends FieldAbstract
             return '******';
         }
 
-        $assignment = $this->randomUtil->getRandomAssignment($value);
+        $assignment = $this->randomRepository->getRandomAssignment($value);
         if (!$assignment || !$assignment->exists) {
             return $value;
         }

@@ -11,7 +11,7 @@
 
 namespace GemsRandomizer\Model\Dependency;
 
-use GemsRandomizer\Util\RandomUtil;
+use GemsRandomizer\Repository\RandomRepository;
 use Zalt\Base\TranslatorInterface;
 use Zalt\Model\Dependency\DependencyAbstract;
 
@@ -56,11 +56,11 @@ class StudyValueDependency extends DependencyAbstract
     /**
      * Constructor checks any subclass set variables
      *
-     * @param RandomUtil $randomUtil
+     * @param RandomRepository $randomRepository
      */
     public function __construct(
         TranslatorInterface $translate,
-        protected readonly RandomUtil $randomUtil)
+        protected readonly RandomRepository $randomRepository)
     {
         parent::__construct($translate);
     }    
@@ -71,6 +71,6 @@ class StudyValueDependency extends DependencyAbstract
     public function getChanges(array $context, bool $new = false): array
     {
         $studyId = isset($context['grb_study_id']) ? $context['grb_study_id'] : null;
-        return ['grb_value_id' => ['multiOptions' => $this->randomUtil->getRandomValues($studyId)]]; 
+        return ['grb_value_id' => ['multiOptions' => $this->randomRepository->getRandomValues($studyId)]];
     }
 }

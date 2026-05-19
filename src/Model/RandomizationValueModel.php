@@ -13,7 +13,7 @@ namespace GemsRandomizer\Model;
 
 use Gems\Model\JoinModel;
 use Gems\SnippetsActions\Form\CreateAction;
-use GemsRandomizer\Util\RandomUtil;
+use GemsRandomizer\Repository\RandomRepository;
 use Zalt\Base\TranslatorInterface;
 use Zalt\SnippetsActions\SnippetActionInterface;
 
@@ -30,7 +30,7 @@ class RandomizationValueModel extends JoinModel
      * Create a model that joins two or more tables
      */
     public function __construct(
-        protected readonly RandomUtil $randomUtil,
+        protected readonly RandomRepository $randomRepository,
         TranslatorInterface $translate,
     )
     {
@@ -60,7 +60,7 @@ class RandomizationValueModel extends JoinModel
         $this->set('grv_study_id', [
             'label' => $this->_('Study name'),
             'description' => $this->_('The study name is used to group blocks.'),
-            'multiOptions' => $this->randomUtil->getRandomStudies(),
+            'multiOptions' => $this->randomRepository->getRandomStudies(),
         ]);
         $this->set('grv_value', [
             'label' => $this->_('Randomization export value'),

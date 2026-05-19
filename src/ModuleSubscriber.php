@@ -12,27 +12,13 @@
 namespace GemsRandomizer;
 
 use Gems\Event\Application\CreateMenuEvent;
-use Gems\Event\Application\GetDatabasePaths;
-use Gems\Event\Application\LoaderInitEvent;
-use Gems\Event\Application\MenuAdd;
-use Gems\Event\Application\MenuBuildItemsEvent;
-use Gems\Event\Application\ModelCreateEvent;
-use Gems\Event\Application\NamedArrayEvent;
-use Gems\Event\Application\SetFrontControllerDirectory;
 use Gems\Event\Application\TrackFieldDependencyListEvent;
 use Gems\Event\Application\TrackFieldsListEvent;
-use Gems\Event\Application\TranslatableNamedArrayEvent;
-use Gems\Event\Application\ZendTranslateEvent;
-use Gems\Handlers\EmptyHandler;
 use Gems\Menu\HandlerMenuTrait;
 use GemsRandomizer\Handlers\RandomizationAssignmentHandler;
-use GemsRandomizer\Handlers\RandomizationHandler;
-use GemsRandomizer\Handlers\RandomizationStrataHandler;
 use GemsRandomizer\Handlers\RandomizationStudyHandler;
 use GemsRandomizer\Handlers\RandomizationValueHandler;
-use GemsRandomizer\Util\RandomUtil;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Zalt\Base\TranslateableTrait;
 use Zalt\Base\TranslatorInterface;
 
 /**
@@ -44,14 +30,15 @@ use Zalt\Base\TranslatorInterface;
 class ModuleSubscriber implements EventSubscriberInterface
 {
     use HandlerMenuTrait;
-    use TranslateableTrait;
 
-    public function __construct(TranslatorInterface $translator)
+    public function __construct(
+        private readonly TranslatorInterface $translator
+    )
     {
-        $this->translate = $translator;
+        $this->translate = $this->translator;
     }
 
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             TrackFieldDependencyListEvent::class => [
@@ -60,24 +47,16 @@ class ModuleSubscriber implements EventSubscriberInterface
             TrackFieldsListEvent::class => [
                 'getFieldTypes',
             ],
-            MenuBuildItemsEvent::class => [
-                'createProjectMenu',
-            ],
             CreateMenuEvent::class => [
                 'updateMenu',
             ],
         ];
     }
 
-    public function createProjectMenu(MenuBuildItemsEvent $event)
-    {
-        $items = $event->getItems();
-    }
-
     /**
      * @param CreateMenuEvent $event
      */
-    public function updateMenu(CreateMenuEvent $event)
+    public function updateMenu(CreateMenuEvent $event): void
     {
         $menu = $event->getMenu();
 
@@ -85,40 +64,40 @@ class ModuleSubscriber implements EventSubscriberInterface
             $this->createMenuItem(
                 // controllerClass: RandomizationHandler::class,
                 name: 'track-builder.randomization.index',
-                label: $this->_('Block randomization'),
+                label: $this->translator->_('Block randomization'),
                 type: 'container',
                 parent: 'track-builder',
             ),
             $this->createMenuForHandler(
                 controllerClass: RandomizationStudyHandler::class,
                 name: 'track-builder.randomization.studies',
-                label: $this->_('Studies'),
+                label: $this->translator->_('Studies'),
                 parent: 'track-builder.randomization.index',
             ),
             [
                 'name' => 'track-builder.randomization.strata.index',
-                'label' => $this->translate->trans('Conditions'),
+                'label' => $this->translator->trans('Conditions'),
                 'type' => 'route-link-item',
                 'parent' => 'track-builder.randomization.index',
                 'children' => [
                     [
                         'name' => 'track-builder.randomization.strata.create',
-                        'label' => $this->translate->trans('Create'),
+                        'label' => $this->translator->trans('Create'),
                         'type' => 'route-link-item',
                     ],
                     [
                         'name' => 'track-builder.randomization.strata.show',
-                        'label' => $this->translate->trans('Show'),
+                        'label' => $this->translator->trans('Show'),
                         'type' => 'route-link-item',
                         'children' => [
                             [
                                 'name' => 'track-builder.randomization.strata.edit',
-                                'label' => $this->translate->trans('Edit'),
+                                'label' => $this->translator->trans('Edit'),
                                 'type' => 'route-link-item',
                             ],
                             [
                                 'name' => 'track-builder.randomization.strata.delete',
-                                'label' => $this->translate->trans('Delete'),
+                                'label' => $this->translator->trans('Delete'),
                                 'type' => 'route-link-item',
                             ],
                         ],
@@ -128,13 +107,13 @@ class ModuleSubscriber implements EventSubscriberInterface
             $this->createMenuForHandler(
                 controllerClass: RandomizationValueHandler::class,
                 name: 'track-builder.randomization.values',
-                label: $this->_('Values'),
+                label: $this->translator->_('Values'),
                 parent: 'track-builder.randomization.index',
             ),
             $this->createMenuForHandler(
                 controllerClass: RandomizationAssignmentHandler::class,
                 name: 'track-builder.randomization.assignments',
-                label: $this->_('Assignments'),
+                label: $this->translator->_('Assignments'),
                 parent: 'track-builder.randomization.index',
             ),
         ];
@@ -142,45 +121,15 @@ class ModuleSubscriber implements EventSubscriberInterface
         $menu->addFromConfig($menu, $menuConfig);
 
         // See randomization outcome
-        // $menu->addHiddenPrivilege('prr.assignments.seeresult', $this->translate->_(
+        // $menu->addHiddenPrivilege('prr.assignments.seeresult', $this->translator->_(
         //     'Grant right to see the outcome of a randomization.'
         // ));
     }
 
     /**
-     * @param \Gems\Event\Application\ZendTranslateEvent $event
-     * @throws \Zend_Translate_Exception
-     */
-    public function addTranslation(ZendTranslateEvent $event)
-    {
-        $event->addTranslationByDirectory(ModuleSettings::getVendorPath() . DIRECTORY_SEPARATOR . 'languages');
-    }
-
-    /**
-     * @param \Gems\Event\Application\ModelCreateEvent $event
-     */
-    public function createConditionModel(ModelCreateEvent $event)
-    {
-        $model = $event->getModel();
-
-        $snippets = $model->getMeta('ConditionShowSnippets', []);
-//        $snippets[] = 'Agenda\\ApplyFiltersInformation';
-//        $model->setMeta('ConditionShowSnippets', $snippets);
-    }
-
-    /**
-     * @param \Gems\Event\Application\GetDatabasePaths $event
-     */
-    public function getDatabasePaths(GetDatabasePaths $event)
-    {
-        $path = ModuleSettings::getVendorPath() . DIRECTORY_SEPARATOR . 'configs' . DIRECTORY_SEPARATOR . 'db';
-        $event->addPath(ModuleSettings::$moduleName, $path);
-    }
-
-    /**
      * @param TrackFieldDependencyListEvent $event
      */
-    public function getFieldDependencies(TrackFieldDependencyListEvent $event)
+    public function getFieldDependencies(TrackFieldDependencyListEvent $event): void
     {
         $event->addItems([
             'randomization' => 'RandomizerDependency',
@@ -190,27 +139,10 @@ class ModuleSubscriber implements EventSubscriberInterface
     /**
      * @param TrackFieldsListEvent $event
      */
-    public function getFieldTypes(TrackFieldsListEvent $event)
+    public function getFieldTypes(TrackFieldsListEvent $event): void
     {
         $event->addItems([
-            'randomization' => $this->_('Randomization'),
+            'randomization' => $this->translator->_('Randomization'),
         ]);
-    }
-
-    /**
-     * @param \Gems\Event\Application\LoaderInitEvent $event
-     */
-    public function initLoader(LoaderInitEvent $event)
-    {
-        $event->addByName(new RandomUtil(), 'randomUtil');
-    }
-
-    /**
-     * @param \Gems\Event\Application\SetFrontControllerDirectory $event
-     */
-    public function setFrontControllerDirectory(SetFrontControllerDirectory $event)
-    {
-        $applicationPath = ModuleSettings::getVendorPath() . DIRECTORY_SEPARATOR . 'controllers';
-        $event->setControllerDirIfControllerExists($applicationPath);
     }
 }

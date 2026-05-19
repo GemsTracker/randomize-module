@@ -114,7 +114,7 @@ class RandomizationStrataHandler extends ConditionHandler
      * @param int $count
      * @return string
      */
-    public function getTopic($count = 1): string
+    public function getTopic(int $count = 1): string
     {
         return $this->plural('stratum', 'strata', $count);
     }

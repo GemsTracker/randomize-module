@@ -68,7 +68,7 @@ class RandomizationValueHandler extends RandomizationHandlerAbstract
      */
     protected function createModel($detailed, $action)
     {
-        return $this->randomUtil->createValueModel($detailed, $action);
+        return $this->randomRepository->createValueModel($detailed, $action);
     }
 
     protected function getModel(SnippetActionInterface $action): MetaModellerInterface
@@ -95,7 +95,7 @@ class RandomizationValueHandler extends RandomizationHandlerAbstract
      * @param int $count
      * @return string
      */
-    public function getTopic($count = 1): string
+    public function getTopic(int $count = 1): string
     {
         return $this->plural('randomization value', 'randomization values', $count);
     }

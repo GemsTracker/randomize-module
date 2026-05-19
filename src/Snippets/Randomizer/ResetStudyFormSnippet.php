@@ -16,13 +16,14 @@ use Gems\Db\ResultFetcher;
 use Gems\Menu\MenuSnippetHelper;
 use Gems\Model;
 use Gems\Snippets\FormSnippetAbstract;
-use GemsRandomizer\Util\RandomUtil;
+use GemsRandomizer\Repository\RandomRepository;
 use Laminas\Db\Sql\Select;
 use Laminas\Db\Sql\Where;
 use Zalt\Base\RequestInfo;
 use Zalt\Base\TranslatorInterface;
 use Zalt\Message\MessengerInterface;
 use Zalt\SnippetsLoader\SnippetOptions;
+use Zalt\Validator\InArray;
 
 /**
  *
@@ -36,7 +37,7 @@ class ResetStudyFormSnippet extends FormSnippetAbstract
     /**
      * @var int|false The study id or false if none exists 
      */
-    protected $studyId = false;
+    protected int|bool $studyId = false;
 
     public function __construct(
         SnippetOptions $snippetOptions,
@@ -46,7 +47,7 @@ class ResetStudyFormSnippet extends FormSnippetAbstract
         AuditLog $auditLog,
         MenuSnippetHelper $menuHelper,
         protected readonly ResultFetcher $resultFetcher,
-        protected readonly RandomUtil $randomUtil,
+        protected readonly RandomRepository $randomRepository,
     )
     {
         parent::__construct($snippetOptions, $requestInfo, $translate, $messenger, $auditLog, $menuHelper);
@@ -54,7 +55,7 @@ class ResetStudyFormSnippet extends FormSnippetAbstract
     /**
      * @inheritDoc
      */
-    protected function addFormElements(mixed $form)
+    protected function addFormElements(mixed $form): void
     {
         $this->saveLabel = $this->_('Reset the study NOW!');
         
@@ -64,8 +65,8 @@ class ResetStudyFormSnippet extends FormSnippetAbstract
         $element->setAttrib('size', 30);
         $element->setRequired(true);
         
-        $inArray = new \Zend_Validate_InArray(['haystack' => $this->randomUtil->getRandomStudies()]);
-        $inArray->setMessage($this->_("'%value%' is not an existing study!"), \Zend_Validate_InArray::NOT_IN_ARRAY);
+        $inArray = new InArray(['haystack' => $this->randomRepository->getRandomStudies()]);
+        $inArray->setMessage($this->_("'%value%' is not an existing study!"), InArray::NOT_IN_ARRAY);
             
         $element->addValidator($inArray);
 
@@ -77,7 +78,7 @@ class ResetStudyFormSnippet extends FormSnippetAbstract
      *
      * @return string
      */
-    protected function getTitle()
+    protected function getTitle(): string
     {
         return $this->_('Do you want to reset a study?');
     }
@@ -88,7 +89,7 @@ class ResetStudyFormSnippet extends FormSnippetAbstract
     protected function saveData(): int
     {
         $studyName     = $this->formData['study_name'];
-        $this->studyId = array_search($studyName, $this->randomUtil->getRandomStudies());
+        $this->studyId = array_search($studyName, $this->randomRepository->getRandomStudies());
         
         if (! $this->studyId) {
             return 0;
@@ -119,7 +120,7 @@ class ResetStudyFormSnippet extends FormSnippetAbstract
         // Only reroute when it is to a different url
         if ($this->studyId) {
 
-            if ($this->routeController) {
+            /*if ($this->routeController) {
                 $controllerName = $this->routeController;
             } else {
                 $controllerName = $this->request->getControllerName();
@@ -131,6 +132,7 @@ class ResetStudyFormSnippet extends FormSnippetAbstract
                     Model::REQUEST_ID => $this->studyId,
                     'RouteReset' => true,
                 );
+            */
         }
 
         return $this;

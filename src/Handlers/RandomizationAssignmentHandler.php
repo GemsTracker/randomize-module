@@ -34,7 +34,7 @@ class RandomizationAssignmentHandler extends RandomizationHandlerAbstract
      */
     protected function createModel($detailed, $action)
     {
-        return $this->randomUtil->createBlockModel($detailed, $action);
+        return $this->randomRepository->createBlockModel($detailed, $action);
     }
 
     protected function getModel(SnippetActionInterface $action): MetaModellerInterface

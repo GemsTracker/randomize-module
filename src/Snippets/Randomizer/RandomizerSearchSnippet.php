@@ -11,11 +11,12 @@
 
 namespace GemsRandomizer\Snippets\Randomizer;
 
+use Gems\Config\ConfigAccessor;
 use Gems\Db\ResultFetcher;
 use Gems\Menu\MenuSnippetHelper;
 use Gems\Model\MetaModelLoader;
 use Gems\Snippets\AutosearchFormSnippet;
-use GemsRandomizer\Util\RandomUtil;
+use GemsRandomizer\Repository\RandomRepository;
 use Zalt\Base\RequestInfo;
 use Zalt\Base\TranslatorInterface;
 use Zalt\Message\StatusMessengerInterface;
@@ -34,15 +35,25 @@ class RandomizerSearchSnippet extends AutosearchFormSnippet
         SnippetOptions $snippetOptions,
         RequestInfo $requestInfo,
         TranslatorInterface $translate,
+        ConfigAccessor $configAccessor,
         MenuSnippetHelper $menuSnippetHelper,
         MetaModelLoader $metaModelLoader,
         ResultFetcher $resultFetcher,
         StatusMessengerInterface $messenger,
-        protected readonly RandomUtil $randomUtil,
-        )
-    {
-        parent::__construct($snippetOptions, $requestInfo, $translate, $menuSnippetHelper, $metaModelLoader, $resultFetcher, $messenger);
+        protected readonly RandomRepository $randomRepository,
+    ) {
+        parent::__construct(
+            $snippetOptions,
+            $requestInfo,
+            $translate,
+            $configAccessor,
+            $menuSnippetHelper,
+            $metaModelLoader,
+            $resultFetcher,
+            $messenger
+        );
     }
+
     /**
      * Returns a text element for autosearch. Can be overruled.
      *
@@ -56,7 +67,7 @@ class RandomizerSearchSnippet extends AutosearchFormSnippet
     {
         $elements = parent::getAutoSearchElements($data);
 
-        $elements['grb_study_id']  = $this->_createSelectElement('grb_study_id',  $this->randomUtil->getRandomStudies(), $this->_('(all studies)'));
+        $elements['grb_study_id']  = $this->_createSelectElement('grb_study_id',  $this->randomRepository->getRandomStudies(), $this->_('(all studies)'));
         $elements['grb_condition'] = $this->_createSelectElement('grb_condition',  $this->model, $this->_('(all strata)'));
         $usages = [
             'unused'    => $this->_('Unused'),

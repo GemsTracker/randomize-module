@@ -17,6 +17,7 @@ use GemsRandomizer\Handlers\RandomizationStudyHandler;
 use GemsRandomizer\Handlers\RandomizationValueHandler;
 use Zalt\Base\RequestInfo;
 use Zalt\Base\TranslatorInterface;
+use Zalt\Html\Sequence;
 use Zalt\Snippets\TranslatableSnippetAbstract;
 use Zalt\SnippetsLoader\SnippetOptions;
 
@@ -32,9 +33,13 @@ class AddRandomizerInformation extends TranslatableSnippetAbstract
     /**
      * @var string 
      */
-    protected $randomizationStep;
+    protected string $randomizationStep;
 
-    public function __construct(SnippetOptions $snippetOptions, RequestInfo $requestInfo, TranslatorInterface $translate)
+    public function __construct(
+        SnippetOptions $snippetOptions,
+        RequestInfo $requestInfo,
+        TranslatorInterface $translate
+    )
     {
         parent::__construct($snippetOptions, $requestInfo, $translate);
 
@@ -53,9 +58,9 @@ class AddRandomizerInformation extends TranslatableSnippetAbstract
      *
      * This is a stub function either override getHtmlOutput() or override render()
      *
-     * @return \Zalt\Html\Sequence Something that can be rendered
+     * @return Sequence Something that can be rendered
      */
-    public function getHtmlOutput()
+    public function getHtmlOutput(): Sequence
     {
         $seq = $this->getHtmlSequence();
         $seq->br();

@@ -96,7 +96,7 @@ class RandomizationStudyHandler extends RandomizationHandlerAbstract
      */
     protected function createModel(bool $detailed, SnippetActionInterface $action): RandomizationStudyModel
     {
-        return $this->randomUtil->createStudyModel($detailed, $action);
+        return $this->randomRepository->createStudyModel($detailed, $action);
     }
 
     protected function getModel(SnippetActionInterface $action): MetaModellerInterface
@@ -123,7 +123,7 @@ class RandomizationStudyHandler extends RandomizationHandlerAbstract
      * @param int $count
      * @return string
      */
-    public function getTopic($count = 1): string
+    public function getTopic(int $count = 1): string
     {
         return $this->plural('randomization study', 'randomization studies', $count);
     }
