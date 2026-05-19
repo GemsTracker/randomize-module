@@ -11,13 +11,16 @@
 
 namespace GemsRandomizer\Model\Translator;
 
+use Gems\Cache\HelperAdapter;
 use Gems\Condition\ConditionLoader;
 use Gems\Conditions;
 use Gems\Form;
+use GemsRandomizer\Repository\RandomRepository;
 use Zalt\Base\TranslatorInterface;
 use Zalt\Model\Data\DataWriterInterface;
 use Zalt\Model\Translator\ModelTranslatorAbstract;
 use Zalt\Model\Translator\ModelTranslatorInterface;
+use Zalt\Validator\InArray;
 
 /**
  *
@@ -31,48 +34,28 @@ class BlockImportTranslator extends ModelTranslatorAbstract
     /**
      * @var array cond id => row
      */
-    protected $_conditionIds;
+    protected array $_conditionIds;
 
     /**
      * @var array cond id => label
      */
-    protected $_studyIds;
+    protected array $_studyIds;
 
     /**
      * @var array cond id => export value
      */
-    protected $_valueExportIds;
+    protected array $_valueExportIds;
 
     /**
      * @var array cond id => value
      */
-    protected $_valueIds;
-
-    /**
-     * @var \Zend_Cache_Core
-     */
-    protected $cache;
-
-    /**
-     *
-     * @var \Zend_Db_Adapter_Abstract
-     */
-    protected $db;
-    
-    /**
-     *
-     * @var \Gems\Loader
-     */
-    protected $loader;
-
-    /**
-     * @var \GemsRandomizer\Util\RandomUtil
-     */
-    protected $randomUtil;
+    protected array $_valueIds;
 
     public function __construct(
         TranslatorInterface $translator,
         protected readonly ConditionLoader $conditionLoader,
+        protected readonly RandomRepository $randomRepository,
+        protected readonly HelperAdapter $cache,
     )
     {
         parent::__construct($translator);
@@ -83,7 +66,7 @@ class BlockImportTranslator extends ModelTranslatorAbstract
      *
      * @return Form
      */
-    protected function _createTargetForm()
+    protected function _createTargetForm(): Form
     {
         return new Form();
     }
@@ -96,13 +79,13 @@ class BlockImportTranslator extends ModelTranslatorAbstract
      * @param mixed $index
      * @param mixed $value
      */
-    public function addMultiOption($elementName, $index, $value)
+    public function addMultiOption(string $elementName, mixed $index, mixed $value): void
     {
-        if ($this->_targetModel) {
-            if ($this->_targetModel->has($elementName, 'multiOptions')) {
-                $options = $this->_targetModel->get($elementName, 'multiOptions');
+        if ($this->targetModel) {
+            if ($this->targetModel->has($elementName, 'multiOptions')) {
+                $options = $this->targetModel->get($elementName, 'multiOptions');
                 $options[$index] = $value;
-                $this->_targetModel->set($elementName, 'multiOptions', $options);
+                $this->targetModel->set($elementName, 'multiOptions', $options);
             }
         }
         $element = $this->targetForm->getElement($elementName);
@@ -110,7 +93,7 @@ class BlockImportTranslator extends ModelTranslatorAbstract
             $element->addMultiOption($index, $value);
 
             $validator = $element->getValidator('InArray');
-            if ($validator instanceof \Zend_Validate_InArray) {
+            if ($validator instanceof InArray) {
                 $haystack   = $validator->getHaystack();
                 $haystack[] = $index; // Validator contains only choice
                 $validator->setHaystack($haystack);
@@ -147,11 +130,12 @@ class BlockImportTranslator extends ModelTranslatorAbstract
      */
     public function setTargetModel(DataWriterInterface $targetModel): ModelTranslatorInterface
     {
-        $this->_conditionIds = $targetModel->get('grb_condition', 'multiOptions');
-        $this->_studyIds     = $targetModel->get('grb_study_id', 'multiOptions');
-        $this->_valueIds     = $targetModel->get('grb_value_id', 'multiOptions');
+        $targetMetaModel = $targetModel->getMetaModel();
+        $this->_conditionIds = $targetMetaModel->get('grb_condition', 'multiOptions');
+        $this->_studyIds     = $targetMetaModel->get('grb_study_id', 'multiOptions');
+        $this->_valueIds     = $targetMetaModel->get('grb_value_id', 'multiOptions');
 
-        $targetModel->del('grb_block_id', 'validators');
+        $targetMetaModel->del('grb_block_id', 'validators');
         
         return parent::setTargetModel($targetModel);
     }
@@ -161,14 +145,14 @@ class BlockImportTranslator extends ModelTranslatorAbstract
      *
      * @param mixed $row array or \Traversable row
      * @param mixed $key
-     * @return mixed Row array or false when errors occurred
+     * @return array|bool Row array or false when errors occurred
      */
-    public function translateRowValues($row, $key)
+    public function translateRowValues($row, $key): array|bool
     {
         $study = $row['study'];
         // Create study if new
         if ($study && (! (isset($this->_studyIds[$study]) || in_array($study, $this->_studyIds)))) {
-            $sModel  = $this->randomUtil->createStudyModel(true, 'create');
+            $sModel  = $this->randomRepository->createStudyModel(true, 'create');
             $sResult = $sModel->load(['grs_study_name' => $study]);
             
             if (! $sResult) {
@@ -183,7 +167,7 @@ class BlockImportTranslator extends ModelTranslatorAbstract
             
             $this->_studyIds[$sResult['grs_study_id']] = $study;
             $this->addMultiOption('grb_study_id', $sResult['grs_study_id'], $study);
-            $this->cache->clean(\Zend_Cache::CLEANING_MODE_MATCHING_ANY_TAG, ['randomstudies']);
+            $this->cache->invalidateTags(['randomstudies']);
 
             $row['study'] = $sResult['grs_study_id'];
         }
@@ -219,7 +203,7 @@ class BlockImportTranslator extends ModelTranslatorAbstract
         // Check for export values instead of label values 
         if ($val && (! (isset($this->_valueIds[$val]) || in_array($val, $this->_valueIds)))) {
             if ($studyId) {
-                $export = array_search($val, $this->randomUtil->getRandomExportValues($studyId));
+                $export = array_search($val, $this->randomRepository->getRandomExportValues($studyId));
                 if (false !== $export) {
                     $val          = $export;
                     $row['value'] = $export;
@@ -228,7 +212,7 @@ class BlockImportTranslator extends ModelTranslatorAbstract
         }
         // Create value if new
         if ($val && (! (isset($this->_valueIds[$val]) || in_array($val, $this->_valueIds)))) {
-            $vModel  = $this->randomUtil->createValueModel(true, 'create');
+            $vModel  = $this->randomRepository->createValueModel(true, 'create');
             $vResult = $vModel->load(['grv_study_id' => $studyId, 'grv_value_label' => $val]);
             
             if (! $vResult) {
@@ -244,7 +228,7 @@ class BlockImportTranslator extends ModelTranslatorAbstract
             
             $this->_valueIds[$vResult['grv_value_id']] = $val;
             $this->addMultiOption('grb_value_id', $vResult['grv_value_id'], $val);
-            $this->cache->clean(\Zend_Cache::CLEANING_MODE_MATCHING_ANY_TAG, ['randomvalues']);
+            $this->cache->invalidateTags(['randomvalues']);
         }
 
         $row = parent::translateRowValues($row, $key);
