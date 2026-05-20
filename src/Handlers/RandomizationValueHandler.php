@@ -85,9 +85,11 @@ class RandomizationValueHandler extends RandomizationHandlerAbstract
 
     protected function getModel(SnippetActionInterface $action): MetaModellerInterface
     {
-        $addUsage = !($action instanceof CreateAction || $action instanceof ImportAction);
-        $this->model->applySettings($action->isDetailed(), $addUsage);
-        $this->appliedModelSettings = true;
+        if (!$this->appliedModelSettings) {
+            $addUsage = !($action instanceof CreateAction || $action instanceof ImportAction);
+            $this->model->applySettings($action->isDetailed(), $addUsage);
+            $this->appliedModelSettings = true;
+        }
         return $this->model;
     }
 

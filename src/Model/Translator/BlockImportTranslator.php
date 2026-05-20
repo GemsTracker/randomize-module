@@ -32,6 +32,10 @@ use Zalt\Model\Translator\ModelTranslatorInterface;
  */
 class BlockImportTranslator extends ModelTranslatorAbstract
 {
+    private ?RandomizationStudyModel $studyModel = null;
+    private ?ConditionModel $conditionModel = null;
+    private ?RandomizationValueModel $valueModel = null;
+
     /**
      * @var array cond id => row
      */
@@ -139,9 +143,7 @@ class BlockImportTranslator extends ModelTranslatorAbstract
         $study = $row['study'];
         // Create study if new
         if ($study && (! (isset($this->_studyIds[$study]) || in_array($study, $this->_studyIds)))) {
-            /** @var RandomizationStudyModel $sModel */
-            $sModel = $this->container->get(RandomizationStudyModel::class);
-            $sModel->applySettings(true);
+            $sModel = $this->getStudyModel();
             $sResult = $sModel->load(['grs_study_name' => $study]);
             
             if (! $sResult) {
@@ -169,9 +171,7 @@ class BlockImportTranslator extends ModelTranslatorAbstract
             unset($classes[""]);
             reset($classes);
 
-            // \MUtil_Echo::track($classes);
-            /** @var ConditionModel $cModel */
-            $cModel = $this->container->get(ConditionModel::class);
+            $cModel = $this->getConditionModel();
             $cResult = $cModel->load(['gcon_type' => ConditionLoader::TRACK_CONDITION, 'gcon_name'   => $cond]);
             
             if (! $cResult) {
@@ -202,9 +202,7 @@ class BlockImportTranslator extends ModelTranslatorAbstract
         }
         // Create value if new
         if ($val && (! (isset($this->_valueIds[$val]) || in_array($val, $this->_valueIds)))) {
-            /** @var RandomizationValueModel $sModel */
-            $vModel = $this->container->get(RandomizationValueModel::class);
-            $vModel->applySettings(true);
+            $vModel = $this->getValueModel();
             $vResult = $vModel->load(['grv_study_id' => $studyId, 'grv_value_label' => $val]);
             
             if (! $vResult) {
@@ -232,5 +230,32 @@ class BlockImportTranslator extends ModelTranslatorAbstract
         // \MUtil_Echo::track($row);
 
         return $row;
+    }
+
+    private function getConditionModel(): ConditionModel
+    {
+        if (!$this->conditionModel) {
+            $this->conditionModel = $this->container->get(ConditionModel::class);
+        }
+        return $this->conditionModel;
+    }
+
+    private function getStudyModel(): RandomizationStudyModel
+    {
+        if (!$this->studyModel) {
+            /** @var RandomizationStudyModel $sModel */
+            $this->studyModel = $this->container->get(RandomizationStudyModel::class);
+            $this->studyModel->applySettings(true);
+        }
+        return $this->studyModel;
+    }
+
+    private function getValueModel(): RandomizationValueModel
+    {
+        if (!$this->valueModel) {
+            $this->valueModel = $this->container->get(RandomizationValueModel::class);
+            $this->valueModel->applySettings(true);
+        }
+        return $this->valueModel;
     }
 }
