@@ -13,10 +13,16 @@ declare(strict_types=1);
 
 namespace GemsRandomizer\Handlers;
 
+use Gems\SnippetsActions\Form\CreateAction;
+use Gems\SnippetsActions\Import\ImportAction;
 use GemsRandomizer\Model\RandomizationStudyModel;
 use GemsRandomizer\Snippets\Randomizer\ResetStudyFormSnippet;
+use Psr\Cache\CacheItemPoolInterface;
+use Zalt\Base\TranslatorInterface;
 use Zalt\Model\MetaModellerInterface;
+use Zalt\Model\MetaModelLoader;
 use Zalt\SnippetsActions\SnippetActionInterface;
+use Zalt\SnippetsLoader\SnippetResponderInterface;
 
 /**
  *
@@ -27,6 +33,7 @@ use Zalt\SnippetsActions\SnippetActionInterface;
  */
 class RandomizationStudyHandler extends RandomizationHandlerAbstract
 {
+    protected bool $appliedModelSettings = false;
     /**
      * The parameters used for the autofilter action.
      *
@@ -83,26 +90,22 @@ class RandomizationStudyHandler extends RandomizationHandlerAbstract
      */
     protected $resetSnippets = [ResetStudyFormSnippet::class];
 
-    /**
-     * Creates a model for getModel(). Called only for each new $action.
-     *
-     * The parameters allow you to easily adapt the model to the current action. The $detailed
-     * parameter was added, because the most common use of action is a split between detailed
-     * and summarized actions.
-     *
-     * @param boolean $detailed True when the current action is not in $summarizedActions.
-     * @param SnippetActionInterface $action The current action.
-     * @return RandomizationStudyModel
-     */
-    protected function createModel(bool $detailed, SnippetActionInterface $action): RandomizationStudyModel
-    {
-        return $this->randomRepository->createStudyModel($detailed, $action);
+    public function __construct(
+        SnippetResponderInterface $responder,
+        MetaModelLoader $metaModelLoader,
+        TranslatorInterface $translate,
+        CacheItemPoolInterface $cache,
+        protected readonly RandomizationStudyModel $model,
+    ) {
+        parent::__construct($responder, $metaModelLoader, $translate, $cache);
     }
 
     protected function getModel(SnippetActionInterface $action): MetaModellerInterface
     {
-        if (!$this->model) {
-            $this->model = $this->createModel(false, $action);
+        if (!$this->appliedModelSettings) {
+            $addUsage = !($action instanceof CreateAction || $action instanceof ImportAction);
+            $this->model->applySettings($action->isDetailed(), $addUsage);
+            $this->appliedModelSettings = true;
         }
         return $this->model;
     }

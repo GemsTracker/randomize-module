@@ -13,14 +13,15 @@ namespace GemsRandomizer\Model\Translator;
 
 use Gems\Cache\HelperAdapter;
 use Gems\Condition\ConditionLoader;
-use Gems\Conditions;
-use Gems\Form;
+use Gems\Model\ConditionModel;
+use GemsRandomizer\Model\RandomizationStudyModel;
+use GemsRandomizer\Model\RandomizationValueModel;
 use GemsRandomizer\Repository\RandomRepository;
+use Psr\Container\ContainerInterface;
 use Zalt\Base\TranslatorInterface;
 use Zalt\Model\Data\DataWriterInterface;
 use Zalt\Model\Translator\ModelTranslatorAbstract;
 use Zalt\Model\Translator\ModelTranslatorInterface;
-use Zalt\Validator\InArray;
 
 /**
  *
@@ -42,11 +43,6 @@ class BlockImportTranslator extends ModelTranslatorAbstract
     protected array $_studyIds;
 
     /**
-     * @var array cond id => export value
-     */
-    protected array $_valueExportIds;
-
-    /**
      * @var array cond id => value
      */
     protected array $_valueIds;
@@ -54,21 +50,12 @@ class BlockImportTranslator extends ModelTranslatorAbstract
     public function __construct(
         TranslatorInterface $translator,
         protected readonly ConditionLoader $conditionLoader,
-        protected readonly RandomRepository $randomRepository,
+        protected readonly ContainerInterface $container,
         protected readonly HelperAdapter $cache,
+        protected readonly RandomRepository $randomRepository,
     )
     {
         parent::__construct($translator);
-    }
-    
-    /**
-     * Create an empty form for filtering and validation
-     *
-     * @return Form
-     */
-    protected function _createTargetForm(): Form
-    {
-        return new Form();
     }
 
     /**
@@ -81,14 +68,14 @@ class BlockImportTranslator extends ModelTranslatorAbstract
      */
     public function addMultiOption(string $elementName, mixed $index, mixed $value): void
     {
-        if ($this->targetModel) {
-            if ($this->targetModel->has($elementName, 'multiOptions')) {
-                $options = $this->targetModel->get($elementName, 'multiOptions');
-                $options[$index] = $value;
-                $this->targetModel->set($elementName, 'multiOptions', $options);
-            }
+        $targetMetaModel = $this->targetModel->getMetaModel();
+        if ($targetMetaModel->has($elementName, 'multiOptions')) {
+            $options = $targetMetaModel->get($elementName, 'multiOptions');
+            $options[$index] = $value;
+            $targetMetaModel->set($elementName, 'multiOptions', $options);
         }
-        $element = $this->targetForm->getElement($elementName);
+
+        /*$element = $this->targetForm->getElement($elementName);
         if ($element instanceof \Zend_Form_Element_Multi) {
             $element->addMultiOption($index, $value);
 
@@ -98,7 +85,7 @@ class BlockImportTranslator extends ModelTranslatorAbstract
                 $haystack[] = $index; // Validator contains only choice
                 $validator->setHaystack($haystack);
             }
-        }
+        }*/
     }
     
     /**
@@ -144,15 +131,17 @@ class BlockImportTranslator extends ModelTranslatorAbstract
      * Perform any translations necessary for the code to work
      *
      * @param mixed $row array or \Traversable row
-     * @param mixed $key
+     * @param mixed $rowId
      * @return array|bool Row array or false when errors occurred
      */
-    public function translateRowValues($row, $key): array|bool
+    public function translateRowValues($row, mixed $rowId): array|bool
     {
         $study = $row['study'];
         // Create study if new
         if ($study && (! (isset($this->_studyIds[$study]) || in_array($study, $this->_studyIds)))) {
-            $sModel  = $this->randomRepository->createStudyModel(true, 'create');
+            /** @var RandomizationStudyModel $sModel */
+            $sModel = $this->container->get(RandomizationStudyModel::class);
+            $sModel->applySettings(true);
             $sResult = $sModel->load(['grs_study_name' => $study]);
             
             if (! $sResult) {
@@ -181,7 +170,8 @@ class BlockImportTranslator extends ModelTranslatorAbstract
             reset($classes);
 
             // \MUtil_Echo::track($classes);
-            $cModel  = $this->loader->getModels()->getConditionModel();
+            /** @var ConditionModel $cModel */
+            $cModel = $this->container->get(ConditionModel::class);
             $cResult = $cModel->load(['gcon_type' => ConditionLoader::TRACK_CONDITION, 'gcon_name'   => $cond]);
             
             if (! $cResult) {
@@ -212,7 +202,9 @@ class BlockImportTranslator extends ModelTranslatorAbstract
         }
         // Create value if new
         if ($val && (! (isset($this->_valueIds[$val]) || in_array($val, $this->_valueIds)))) {
-            $vModel  = $this->randomRepository->createValueModel(true, 'create');
+            /** @var RandomizationValueModel $sModel */
+            $vModel = $this->container->get(RandomizationValueModel::class);
+            $vModel->applySettings(true);
             $vResult = $vModel->load(['grv_study_id' => $studyId, 'grv_value_label' => $val]);
             
             if (! $vResult) {
@@ -231,7 +223,7 @@ class BlockImportTranslator extends ModelTranslatorAbstract
             $this->cache->invalidateTags(['randomvalues']);
         }
 
-        $row = parent::translateRowValues($row, $key);
+        $row = parent::translateRowValues($row, $rowId);
 
         if (!$row) {
             return false;

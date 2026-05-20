@@ -32,8 +32,6 @@ use Zalt\SnippetsLoader\SnippetResponderInterface;
  */
 abstract class RandomizationHandlerAbstract extends BrowseChangeHandler
 {
-    protected $model;
-
     /**
      * The parameters used for the autofilter action.
      *
@@ -49,25 +47,6 @@ abstract class RandomizationHandlerAbstract extends BrowseChangeHandler
             'grs_study_name' => SORT_ASC,
         ],
     ];
-
-    // protected function getModel(SnippetActionInterface $action): MetaModellerInterface
-    // {
-    //     if (!$this->model) {
-    //         $this->model = $this->createModel(false, $action);
-    //     }
-    //     return $this->model;
-    // }
-
-    public function __construct(
-        SnippetResponderInterface $responder,
-        MetaModelLoader $metaModelLoader,
-        TranslatorInterface $translate,
-        CacheItemPoolInterface $cache,
-        protected readonly RandomRepository $randomRepository,
-    )
-    {
-        parent::__construct($responder, $metaModelLoader, $translate, $cache);
-    }
 
     public function prepareAction(SnippetActionInterface $action) : void
     {

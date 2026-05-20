@@ -11,10 +11,17 @@ declare(strict_types=1);
 namespace GemsRandomizer\Handlers;
 
 use Gems\Handlers\CsrfHandlerTrait;
+use Gems\SnippetsActions\Form\CreateAction;
+use Gems\SnippetsActions\Import\ImportAction;
 use GemsRandomizer\Handlers\RandomizationHandlerAbstract;
+use GemsRandomizer\Model\BlockRandomizationModel;
+use Psr\Cache\CacheItemPoolInterface;
+use Zalt\Base\TranslatorInterface;
 use Zalt\Model\MetaModellerInterface;
+use Zalt\Model\MetaModelLoader;
 use Zalt\SnippetsActions\PostActionInterface;
 use Zalt\SnippetsActions\SnippetActionInterface;
+use Zalt\SnippetsLoader\SnippetResponderInterface;
 
 /**
  * @package    GemsRandomizer
@@ -25,22 +32,29 @@ class RandomizationAssignmentHandler extends RandomizationHandlerAbstract
 {
     use CsrfHandlerTrait;
 
+    protected bool $appliedModelSettings = false;
+
     public static array $parameters = [
         'id' => '[a-zA-Z0-9-_]+',
     ];
 
-    /**
-     * @inheritDoc
-     */
-    protected function createModel($detailed, $action)
-    {
-        return $this->randomRepository->createBlockModel($detailed, $action);
+    public function __construct(
+        SnippetResponderInterface $responder,
+        MetaModelLoader $metaModelLoader,
+        TranslatorInterface $translate,
+        CacheItemPoolInterface $cache,
+        protected readonly BlockRandomizationModel $model,
+    ) {
+        parent::__construct($responder, $metaModelLoader, $translate, $cache);
     }
 
     protected function getModel(SnippetActionInterface $action): MetaModellerInterface
     {
-        if (!$this->model) {
-            $this->model = $this->createModel(false, $action);
+        if (!$this->appliedModelSettings) {
+            $showChanged = !($action instanceof CreateAction);
+
+            $this->model->applySettings($action->isDetailed(), $showChanged);
+            $this->appliedModelSettings = true;
         }
         return $this->model;
     }

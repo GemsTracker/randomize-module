@@ -48,69 +48,6 @@ class RandomRepository
      * @var array assignmentId => GemsRandomizer\Tracker\RandomizationAssignment
      */
     private array $assignments = [];
-    
-    /**
-     * Creates a model for getModel(). Called only for each new $action.
-     *
-     * The parameters allow you to easily adapt the model to the current action. The $detailed
-     * parameter was added, because the most common use of action is a split between detailed
-     * and summarized actions.
-     *
-     * @param boolean $detailed True when the current action is not in $summarizedActions.
-     * @param SnippetActionInterface $action The current action.
-     * @return RandomizationStudyModel
-     */
-    public function createStudyModel(bool $detailed, SnippetActionInterface $action): RandomizationStudyModel
-    {
-        $model = new RandomizationStudyModel($this->translatedUtil, $this->translate);
-        //$this->source->applySource($model);
-
-        $model->applySettings($detailed, $action);
-
-        return $model;
-    }
-
-    /**
-     * Creates a model for getModel(). Called only for each new $action.
-     *
-     * The parameters allow you to easily adapt the model to the current action. The $detailed
-     * parameter was added, because the most common use of action is a split between detailed
-     * and summarized actions.
-     *
-     * @param boolean $detailed True when the current action is not in $summarizedActions.
-     * @param SnippetActionInterface $action The current action.
-     * @return RandomizationValueModel
-     */
-    public function createValueModel(bool $detailed, SnippetActionInterface $action): RandomizationValueModel
-    {
-        $model = new RandomizationValueModel($this, $this->translate);
-        //$this->source->applySource($model);
-
-        $model->applySettings($detailed, $action);
-
-        return $model;
-    }
-
-    /**
-     * Creates a model for getModel(). Called only for each new $action.
-     *
-     * The parameters allow you to easily adapt the model to the current action. The $detailed
-     * parameter was added, because the most common use of action is a split between detailed
-     * and summarized actions.
-     *
-     * @param boolean $detailed True when the current action is not in $summarizedActions.
-     * @param SnippetActionInterface $action The current action.
-     * @return BlockRandomizationModel
-     */
-    public function createBlockModel(bool $detailed, SnippetActionInterface $action): BlockRandomizationModel
-    {
-        $model = new BlockRandomizationModel($this->translatedUtil, $this->conditionLoader, $this->staffRepository, $this, $this->translate);
-        //$this->source->applySource($model);
-
-        $model->applySettings($detailed, $action);
-
-        return $model;
-    }
 
     /**
      * @param array|string $blockData

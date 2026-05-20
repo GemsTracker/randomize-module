@@ -52,7 +52,7 @@ class RandomizationStudyModel extends GemsJoinModel
      * @param SnippetActionInterface $action The current action.
      * @return RandomizationStudyModel
      */
-    public function applySettings(bool $detailed, SnippetActionInterface $action): self
+    public function applySettings(bool $detailed, bool $addUsage = false): self
     {
         $this->addColumn(new Expression("CASE WHEN grs_active = 1 THEN '' ELSE 'DELETED' END"), 'row_class');
 
@@ -67,7 +67,7 @@ class RandomizationStudyModel extends GemsJoinModel
             'type' => new ActivatingYesNoType($this->translatedUtil->getYesNo(), 'row_class'),
         ]);
 
-        if (! $action instanceOf CreateAction) {
+        if (!$addUsage) {
             // SUM columns
             $sql = "(SELECT COALESCE(SUM(%s), 0)  
                         FROM gemsrnd__randomization_blocks

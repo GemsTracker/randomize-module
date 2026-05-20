@@ -65,12 +65,12 @@ class BlockRandomizationModel extends GemsJoinModel
      * @param SnippetActionInterface $action The current action.
      * @return BlockRandomizationModel
      */
-    public function applySettings(bool $detailed, SnippetActionInterface $action)
+    public function applySettings(bool $detailed, bool $showChanged = true)
     {
         if (! $detailed) {
-            $this->addLeftTable('gems__conditions', ['grb_condition' => 'gcon_id'], 'grb', false);
-            $this->addLeftTable('gemsrnd__randomization_studies', ['grb_study_id' => 'grs_study_id'], 'grs', false);
-            $this->addLeftTable('gemsrnd__randomization_values', ['grb_value_id' => 'grv_value', 'grb_study_id' => 'grv_study_id'], 'grv', false);
+            $this->addLeftTable('gems__conditions', ['grb_condition' => 'gcon_id'], false);
+            $this->addLeftTable('gemsrnd__randomization_studies', ['grb_study_id' => 'grs_study_id'], false);
+            $this->addLeftTable('gemsrnd__randomization_values', ['grb_value_id' => 'grv_value', 'grb_study_id' => 'grv_study_id'], false);
         }
         $this->metaModel->resetOrder();
         if ($detailed) {
@@ -144,7 +144,7 @@ class BlockRandomizationModel extends GemsJoinModel
            'filters[digits]' => Digits::class,
         ]);
 
-        $elementClass = ($action instanceOf CreateAction ? 'None' : 'Exhibitor');
+        $elementClass = (!$showChanged ? 'None' : 'Exhibitor');
         $this->metaModel->set('grb_changed', [
             'label' => $this->_('Changed on'),
             'elementClass' => $elementClass,
@@ -156,10 +156,10 @@ class BlockRandomizationModel extends GemsJoinModel
             'multiOptions' => $this->staffRepository->getStaff(),
         ]);
 
-        //if ($detailed) {
+        if ($detailed) {
             $this->metaModel->addDependency(new StudyValueDependency($this->translate, $this->randomRepository));
             $this->metaModel->addDependency(new UseCountDependency($this->translate));
-        //}
+        }
 
         return $this;
     }

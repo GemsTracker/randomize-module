@@ -53,10 +53,10 @@ class RandomizationValueModel extends GemsJoinModel
      * @param SnippetActionInterface $action The current action.
      * @return RandomizationValueModel
      */
-    public function applySettings(bool $detailed, SnippetActionInterface $action): self
+    public function applySettings(bool $detailed, bool $addUsage = false): self
     {
         if (! $detailed) {
-            $this->addLeftTable('gemsrnd__randomization_studies', ['grv_study_id' => 'grs_study_id'], 'grs', false);
+            $this->addLeftTable('gemsrnd__randomization_studies', ['grv_study_id' => 'grs_study_id'], false);
         }
         $this->metaModel->resetOrder();
 
@@ -75,7 +75,7 @@ class RandomizationValueModel extends GemsJoinModel
             'description' => $this->_('The outcome label shown in the field.'),
         ]);
 
-        if (! $action instanceOf CreateAction) {
+        if (!$addUsage) {
             // SUM columns
             $sql = "(SELECT COALESCE(SUM(%s), 0)  
                         FROM gemsrnd__randomization_blocks

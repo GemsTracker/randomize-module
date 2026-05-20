@@ -13,8 +13,15 @@ declare(strict_types=1);
 
 namespace GemsRandomizer\Handlers;
 
+use Gems\SnippetsActions\Form\CreateAction;
+use Gems\SnippetsActions\Import\ImportAction;
+use GemsRandomizer\Model\RandomizationValueModel;
+use Psr\Cache\CacheItemPoolInterface;
+use Zalt\Base\TranslatorInterface;
 use Zalt\Model\MetaModellerInterface;
+use Zalt\Model\MetaModelLoader;
 use Zalt\SnippetsActions\SnippetActionInterface;
+use Zalt\SnippetsLoader\SnippetResponderInterface;
 
 /**
  *
@@ -25,6 +32,9 @@ use Zalt\SnippetsActions\SnippetActionInterface;
  */
 class RandomizationValueHandler extends RandomizationHandlerAbstract
 {
+    protected bool $appliedModelSettings = false;
+
+
     /**
      * The parameters used for the autofilter action.
      *
@@ -63,19 +73,21 @@ class RandomizationValueHandler extends RandomizationHandlerAbstract
      */
     protected $defaultParameters = ['randomizationStep' => 'values'];
 
-    /**
-     * @inheritDoc
-     */
-    protected function createModel($detailed, $action)
-    {
-        return $this->randomRepository->createValueModel($detailed, $action);
+    public function __construct(
+        SnippetResponderInterface $responder,
+        MetaModelLoader $metaModelLoader,
+        TranslatorInterface $translate,
+        CacheItemPoolInterface $cache,
+        protected RandomizationValueModel $model,
+    ) {
+        parent::__construct($responder, $metaModelLoader, $translate, $cache);
     }
 
     protected function getModel(SnippetActionInterface $action): MetaModellerInterface
     {
-        if (!$this->model) {
-            $this->model = $this->createModel(false, $action);
-        }
+        $addUsage = !($action instanceof CreateAction || $action instanceof ImportAction);
+        $this->model->applySettings($action->isDetailed(), $addUsage);
+        $this->appliedModelSettings = true;
         return $this->model;
     }
 

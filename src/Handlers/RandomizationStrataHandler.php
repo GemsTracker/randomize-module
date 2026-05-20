@@ -59,7 +59,7 @@ class RandomizationStrataHandler extends ConditionHandler
     /**
      * The default search data to use.
      *
-     * @var array()
+     * @var array
      */
     protected array $defaultSearchData = ['gcon_type' => ConditionLoader::TRACK_CONDITION];
 
