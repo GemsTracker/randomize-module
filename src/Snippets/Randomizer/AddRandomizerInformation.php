@@ -31,9 +31,9 @@ use Zalt\SnippetsLoader\SnippetOptions;
 class AddRandomizerInformation extends TranslatableSnippetAbstract
 {
     /**
-     * @var string 
+     * @var string|null
      */
-    protected string $randomizationStep;
+    protected string|null $randomizationStep;
 
     public function __construct(
         SnippetOptions $snippetOptions,
@@ -48,6 +48,7 @@ class AddRandomizerInformation extends TranslatableSnippetAbstract
             RandomizationStrataHandler::class => 'strata',
             RandomizationValueHandler::class => 'values',
             RandomizationAssignmentHandler::class => 'assignments',
+            default => null,
         };
 
         // dump($this->randomizationStep);

@@ -48,8 +48,8 @@ class RandomizationStudyModel extends GemsJoinModel
      * parameter was added, because the most common use of action is a split between detailed
      * and summarized actions.
      *
-     * @param boolean $detailed True when the current action is not in $summarizedActions.
-     * @param SnippetActionInterface $action The current action.
+     * @param bool $detailed True when the current action is not in $summarizedActions.
+     * @param bool $addUsage add usage stats to model
      * @return RandomizationStudyModel
      */
     public function applySettings(bool $detailed, bool $addUsage = false): self

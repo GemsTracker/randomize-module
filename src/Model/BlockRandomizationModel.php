@@ -61,8 +61,8 @@ class BlockRandomizationModel extends GemsJoinModel
      * parameter was added, because the most common use of action is a split between detailed
      * and summarized actions.
      *
-     * @param boolean $detailed True when the current action is not in $summarizedActions.
-     * @param SnippetActionInterface $action The current action.
+     * @param bool $detailed True when the current action is not in $summarizedActions.
+     * @param bool $showChanged show changed fields
      * @return BlockRandomizationModel
      */
     public function applySettings(bool $detailed, bool $showChanged = true)

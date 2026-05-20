@@ -50,7 +50,7 @@ class RandomizationValueModel extends GemsJoinModel
      * and summarized actions.
      *
      * @param boolean $detailed True when the current action is not in $summarizedActions.
-     * @param SnippetActionInterface $action The current action.
+     * @param bool $addUsage add usage stats to model
      * @return RandomizationValueModel
      */
     public function applySettings(bool $detailed, bool $addUsage = false): self
