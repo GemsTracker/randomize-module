@@ -11,12 +11,17 @@
 
 namespace GemsRandomizer\Model;
 
+use Gems\Model\GemsJoinModel;
 use Gems\Model\JoinModel;
+use Gems\Model\MetaModelLoader;
 use Gems\SnippetsActions\Form\CreateAction;
 use Gems\Util\Translated;
+use Laminas\Db\Sql\Expression;
 use Zalt\Base\TranslatorInterface;
+use Zalt\Model\Sql\SqlRunnerInterface;
 use Zalt\Model\Type\ActivatingYesNoType;
 use Zalt\SnippetsActions\SnippetActionInterface;
+use Zalt\Validator\Model\ModelUniqueValidator;
 
 /**
  *
@@ -25,22 +30,15 @@ use Zalt\SnippetsActions\SnippetActionInterface;
  * @license    New BSD License
  * @since      Class available since version 1.8.8
  */
-class RandomizationStudyModel extends JoinModel
+class RandomizationStudyModel extends GemsJoinModel
 {
-    /**
-     * Create a model that joins two or more tables
-     */
     public function __construct(
-        protected readonly Translated $translatedUtil,
+        MetaModelLoader $metaModelLoader,
+        SqlRunnerInterface $sqlRunner,
         TranslatorInterface $translate,
-    )
-    {
-        parent::__construct('gemsrnd__randomization_studies', 'gemsrnd__randomization_studies', 'grs', true);
-
-        $this->translate = $translate;
-
-        $this->addColumn(new \Zend_Db_Expr("CASE WHEN grs_active = 1 THEN '' ELSE 'DELETED' END"), 'row_class');
-        $this->setDeleteValues(['grs_active' => 0]);
+        protected readonly Translated $translatedUtil,
+    ) {
+        parent::__construct('gemsrnd__randomization_studies', $metaModelLoader, $sqlRunner, $translate, 'gemsrnd__randomization_studies');
     }
 
     /**
@@ -56,13 +54,15 @@ class RandomizationStudyModel extends JoinModel
      */
     public function applySettings(bool $detailed, SnippetActionInterface $action): self
     {
-        $this->set('grs_study_name', [
+        $this->addColumn(new Expression("CASE WHEN grs_active = 1 THEN '' ELSE 'DELETED' END"), 'row_class');
+
+        $this->metaModel->set('grs_study_name', [
             'label' => $this->_('Study name'),
             'description' => $this->_('The study name is used to group blocks.'),
             'required' => true,
-            'validators[unique]' => $this->createUniqueValidator('grs_study_name'),
+            'validators[unique]' => new ModelUniqueValidator('grs_study_name'),
         ]);
-        $this->set('grs_active', [
+        $this->metaModel->set('grs_active', [
             'label' => $this->_('Active'),
             'type' => new ActivatingYesNoType($this->translatedUtil->getYesNo(), 'row_class'),
         ]);
@@ -73,20 +73,20 @@ class RandomizationStudyModel extends JoinModel
                         FROM gemsrnd__randomization_blocks
                         WHERE grb_active = 1 AND grb_study_id = grs_study_id)";
 
-            $this->addColumn(new \Zend_Db_Expr(sprintf($sql, "grb_use_count")), 'used');
-            $this->set('used', [
+            $this->addColumn(new Expression(sprintf($sql, "grb_use_count")), 'used');
+            $this->metaModel->set('used', [
                 'label' => $this->_('Used'),
                 'elementClass' => 'Exhibitor',
             ]);
 
-            $this->addColumn(new \Zend_Db_Expr(sprintf($sql, "grb_use_max - grb_use_count")), 'free');
-            $this->set('free', [
+            $this->addColumn(new Expression(sprintf($sql, "grb_use_max - grb_use_count")), 'free');
+            $this->metaModel->set('free', [
                 'label' => $this->_('Unused'),
                 'elementClass' => 'Exhibitor',
             ]);
 
-            $this->addColumn(new \Zend_Db_Expr(sprintf($sql, "grb_use_max")), 'total');
-            $this->set('total', [
+            $this->addColumn(new Expression(sprintf($sql, "grb_use_max")), 'total');
+            $this->metaModel->set('total', [
                 'label' => $this->_('Total'),
                 'elementClass' => 'Exhibitor',
             ]);
