@@ -243,7 +243,6 @@ class BlockImportTranslator extends ModelTranslatorAbstract
     private function getStudyModel(): RandomizationStudyModel
     {
         if (!$this->studyModel) {
-            /** @var RandomizationStudyModel $sModel */
             $this->studyModel = $this->container->get(RandomizationStudyModel::class);
             $this->studyModel->applySettings(true);
         }
