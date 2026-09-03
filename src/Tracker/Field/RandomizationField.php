@@ -114,6 +114,8 @@ class RandomizationField extends FieldAbstract
             return null;
         }
 
+        $condIds = array_filter($condIds);
+
         $outputCondition = false;
         foreach ($condIds as $condId) {
             $condition = $this->conditionLoader->loadCondition($condId);
